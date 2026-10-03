@@ -3,87 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rival Stars - Stable & Breeding Manager</title>
+    <title>Rival Stars - Stable & Racing</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div class="game-container">
-    <!-- Top Header Bar -->
-    <div class="top-bar">
-        <div class="game-title">Rival Stars</div>
-        <div class="currency-cluster">
-            <div class="currency-item">🪙 <span id="gold-display">550</span></div>
-            <div class="currency-item">💎 <span id="diamond-display">58</span></div>
+    <div class="game-container">
+        <!-- Top Currency Bar -->
+        <div class="header-bar">
+            <h2>Rival Stars</h2>
+            <div class="currencies">
+                <span>🪙 <span id="gold-display">550</span></span>
+                <span>💎 <span id="diamond-display">58</span></span>
+            </div>
         </div>
-    </div>
 
-    <!-- Navigation Tabs -->
-    <div class="nav-tabs">
-        <button class="nav-tab active" onclick="switchTab('stable')">Stable</button>
-        <button class="nav-tab" onclick="switchTab('breed')">Breed</button>
-    </div>
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('stable')">Stable</button>
+            <button class="nav-tab" onclick="switchTab('breed')">Breed</button>
+            <button class="nav-tab" onclick="switchTab('care')">Care</button>
+            <button class="nav-tab" onclick="switchTab('train')">Train</button>
+            <button class="nav-tab" onclick="switchTab('race')">Race</button>
+        </div>
 
-    <!-- Main Content Panel -->
-    <div class="content-area">
-
-        <!-- STABLE TAB -->
+        <!-- TAB 1: STABLE -->
         <div id="stable-tab" class="tab-pane active">
-            <div class="horse-showcase">
-                <div class="star-rating" id="active-stars">★★★★★ 5 Stars</div>
-                <div class="animated-horse">🐎</div>
-                <div class="horse-name" id="horse-name-display">Misty</div>
-                <div class="horse-details" id="horse-meta-display">Mare | Arabian | Black</div>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <strong id="power-display">111</strong>
-                    <span>Power</span>
+            <div class="active-horse-card">
+                <div class="star-rating" id="active-stars">★ (1 Star)</div>
+                <div class="horse-visual-container">
+                    <!-- Uses image frames for standstill/animation -->
+                    <img id="horse-image-display" src="assets/3903_2.png" alt="Active Horse">
                 </div>
-                <div class="stat-box">
-                    <strong id="energy-display">95</strong>
-                    <span>Energy</span>
+                <h3 id="horse-name-display">Misty</h3>
+                <p id="horse-meta-display">Mare | Arabian | WHITE</p>
+                
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <span id="power-display">100</span>
+                        <small>Power</small>
+                    </div>
+                    <div class="stat-box">
+                        <span id="energy-display">95</span>
+                        <small>Energy</small>
+                    </div>
                 </div>
             </div>
 
-            <div class="section-heading">Your Stable Inventory</div>
-            <div class="stable-list" id="stable-inventory">
-                <!-- Dynamically populated stable items -->
-            </div>
+            <h3>Your Stable Inventory</h3>
+            <div id="stable-inventory" class="inventory-list"></div>
 
-            <button class="primary-btn" onclick="buyRandomHorse()">Buy Random Horse (🪙 500)</button>
+            <button class="action-btn" onclick="buyRandomHorse()">Buy Random Horse (🪙 500)</button>
         </div>
 
-        <!-- BREED TAB -->
+        <!-- TAB 2: BREED -->
         <div id="breed-tab" class="tab-pane">
-            <div class="horse-showcase" style="padding: 12px;">
-                <div class="horse-name" style="font-size: 1rem;">Breeding Barn</div>
-                <div class="horse-details">Pair 1 Stallion + 1 Mare. 60% chance same tier, 40% chance tier-up!</div>
+            <div class="info-card">
+                <h3>Breeding Barn</h3>
+                <p>Pair 1 Stallion + 1 Mare. 60% chance same tier, 40% chance tier-up!</p>
             </div>
-
-            <div class="section-heading">Select Breeding Pair</div>
             
-            <div style="margin-bottom: 12px;">
-                <label style="font-size: 0.8rem; color: var(--text-muted);">Choose Stallion:</label>
-                <select id="stallion-select" class="dropdown-box"></select>
+            <div class="form-group">
+                <label>Choose Stallion:</label>
+                <select id="stallion-select"></select>
             </div>
 
-            <div style="margin-bottom: 16px;">
-                <label style="font-size: 0.8rem; color: var(--text-muted);">Choose Mare:</label>
-                <select id="mare-select" class="dropdown-box"></select>
+            <div class="form-group">
+                <label>Choose Mare:</label>
+                <select id="mare-select"></select>
             </div>
 
-            <div class="action-card" style="text-align: center; padding: 20px;" onclick="breedHorses()">
-                <h4>🧬 Breed Pair</h4>
-                <p>Inherits coat color from parents & rolls for star tier upgrade.</p>
-                <div class="cost" style="margin-top: 10px;">💎 5 Diamonds</div>
+            <div class="info-card" style="text-align: center;">
+                <p>🧬 Inherits coat color from parents & rolls for star tier upgrade.</p>
+                <button class="action-btn gold-accent" onclick="breedHorses()">Breed Pair (💎 5 Diamonds)</button>
             </div>
         </div>
 
-    </div>
-</div>
+        <!-- TAB 3: CARE -->
+        <div id="care-tab" class="tab-pane">
+            <h3>Horse Care & Maintenance</h3>
+            <p>Keep your active horse well-fed and rested before heading to races!</p>
+            
+            <div class="care-actions">
+                <div class="care-card">
+                    <h4>🍎 Feed Horse</h4>
+                    <p>Restores 25 Energy</p>
+                    <button class="action-btn" onclick="careForHorse('feed')">Feed (🪙 50)</button>
+                </div>
+                <div class="care-card">
+                    <h4>💤 Full Stable Rest</h4>
+                    <p>Restores Energy to 100%</p>
+                    <button class="action-btn" onclick="careForHorse('rest')">Rest (🪙 100)</button>
+                </div>
+            </div>
+        </div>
 
-<script src="script.js"></script>
+        <!-- TAB 4: TRAIN -->
+        <div id="train-tab" class="tab-pane">
+            <h3>Attribute Training</h3>
+            <p>Boost your active horse's individual racing stats (Cost: 🪙 150 each)</p>
+            
+            <div class="training-grid">
+                <button class="train-btn" onclick="trainHorseStat('speed')">⚡ Train Speed</button>
+                <button class="train-btn" onclick="trainHorseStat('stamina')">❤️ Train Stamina</button>
+                <button class="train-btn" onclick="trainHorseStat('acceleration')">🚀 Train Acceleration</button>
+                <button class="train-btn" onclick="trainHorseStat('agility')">🍂 Train Agility</button>
+                <button class="train-btn" onclick="trainHorseStat('jump')">🏇 Train Jump</button>
+            </div>
+        </div>
+
+        <!-- TAB 5: RACE ARENA -->
+        <div id="race-tab" class="tab-pane">
+            <h3>Live Race Track</h3>
+            <p>Watch your horse sprint across the track and win big prizes!</p>
+            
+            <div id="race-arena">
+                <div id="race-track">
+                    <div id="racer-container">
+                        <img id="racer-horse-img" src="" alt="Racer">
+                    </div>
+                </div>
+            </div>
+
+            <button class="action-btn race-start-btn" onclick="startLiveRace()">🏁 Start Live Race!</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
