@@ -22,6 +22,9 @@ const horseAssets = {
 };
 
 let currentFrameIndex = 0;
+let ai1FrameIndex = 0;
+let ai2FrameIndex = 0;
+
 let animationInterval = null;
 let raceInterval = null;
 
@@ -167,7 +170,7 @@ function breedHorses() {
     alert(upgraded ? `🎉 Foal ${newFoal.name} ranked up to ${newStars} Stars!` : `Foal ${newFoal.name} born with ${newStars} Stars!`);
 }
 
-// 3-Lap Championship Race with AI Opponents
+// 3-Lap Championship Race with Animated AI Opponents
 function startLiveRace() {
     let active = gameData.horses[gameData.activeHorseIndex];
     if (active.energy < 25) { alert("Your horse is too tired! Feed or rest them first."); return; }
@@ -186,21 +189,35 @@ function startLiveRace() {
     let currentLap = 1;
     const totalLaps = 3;
 
-    // Set player image based on coat
+    // Grab image elements
     const playerImg = document.getElementById('player-img');
-    const frames = horseAssets[active.coat].runningFrames;
-    playerImg.src = frames[0];
+    const ai1Img = document.getElementById('ai1-img');
+    const ai2Img = document.getElementById('ai2-img');
 
+    // Frames sets
+    const playerFrames = horseAssets[active.coat].runningFrames;
+    const ai1Frames = horseAssets["brown"].runningFrames;
+    const ai2Frames = horseAssets["white"].runningFrames;
+
+    playerImg.src = playerFrames[0];
+    ai1Img.src = ai1Frames[0];
+    ai2Img.src = ai2Frames[0];
+
+    // Animate all horses running frames continuously
     if (animationInterval) clearInterval(animationInterval);
     animationInterval = setInterval(() => {
-        currentFrameIndex = (currentFrameIndex + 1) % frames.length;
-        playerImg.src = frames[currentFrameIndex];
+        currentFrameIndex = (currentFrameIndex + 1) % playerFrames.length;
+        ai1FrameIndex = (ai1FrameIndex + 1) % ai1Frames.length;
+        ai2FrameIndex = (ai2FrameIndex + 1) % ai2Frames.length;
+
+        playerImg.src = playerFrames[currentFrameIndex];
+        ai1Img.src = ai1Frames[ai1FrameIndex];
+        ai2Img.src = ai2Frames[ai2FrameIndex];
     }, 100);
 
     if (raceInterval) clearInterval(raceInterval);
 
     raceInterval = setInterval(() => {
-        // Speeds with slight variance
         let playerSpeed = 1.5 + (active.stats.speed * 0.2) + (Math.random() * 0.8);
         let ai1Speed = 2.2 + (Math.random() * 1.5);
         let ai2Speed = 2.0 + (Math.random() * 1.5);
@@ -213,7 +230,6 @@ function startLiveRace() {
         ai1Elem.style.left = ai1Pos + 'px';
         ai2Elem.style.left = ai2Pos + 'px';
 
-        // Check if everyone completed the current lap
         if (playerPos >= trackWidth || ai1Pos >= trackWidth || ai2Pos >= trackWidth) {
             if (currentLap < totalLaps) {
                 currentLap++;
@@ -222,7 +238,6 @@ function startLiveRace() {
                 ai1Pos = 0;
                 ai2Pos = 0;
             } else {
-                // Race Finished
                 clearInterval(raceInterval);
                 clearInterval(animationInterval);
 
@@ -242,3 +257,4 @@ function startLiveRace() {
 }
 
 updateUI();
+                    
