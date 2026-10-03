@@ -1,16 +1,89 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Horse Game</title>
-    <meta
-      name="description"
-      content="A simple horse runner game built with React and Vite."
-    />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rival Stars - Stable & Breeding Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="game-container">
+    <!-- Top Header Bar -->
+    <div class="top-bar">
+        <div class="game-title">Rival Stars</div>
+        <div class="currency-cluster">
+            <div class="currency-item">🪙 <span id="gold-display">550</span></div>
+            <div class="currency-item">💎 <span id="diamond-display">58</span></div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('stable')">Stable</button>
+        <button class="nav-tab" onclick="switchTab('breed')">Breed</button>
+    </div>
+
+    <!-- Main Content Panel -->
+    <div class="content-area">
+
+        <!-- STABLE TAB -->
+        <div id="stable-tab" class="tab-pane active">
+            <div class="horse-showcase">
+                <div class="star-rating" id="active-stars">★★★★★ 5 Stars</div>
+                <div class="animated-horse">🐎</div>
+                <div class="horse-name" id="horse-name-display">Misty</div>
+                <div class="horse-details" id="horse-meta-display">Mare | Arabian | Black</div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <strong id="power-display">111</strong>
+                    <span>Power</span>
+                </div>
+                <div class="stat-box">
+                    <strong id="energy-display">95</strong>
+                    <span>Energy</span>
+                </div>
+            </div>
+
+            <div class="section-heading">Your Stable Inventory</div>
+            <div class="stable-list" id="stable-inventory">
+                <!-- Dynamically populated stable items -->
+            </div>
+
+            <button class="primary-btn" onclick="buyRandomHorse()">Buy Random Horse (🪙 500)</button>
+        </div>
+
+        <!-- BREED TAB -->
+        <div id="breed-tab" class="tab-pane">
+            <div class="horse-showcase" style="padding: 12px;">
+                <div class="horse-name" style="font-size: 1rem;">Breeding Barn</div>
+                <div class="horse-details">Pair 1 Stallion + 1 Mare. 60% chance same tier, 40% chance tier-up!</div>
+            </div>
+
+            <div class="section-heading">Select Breeding Pair</div>
+            
+            <div style="margin-bottom: 12px;">
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Choose Stallion:</label>
+                <select id="stallion-select" class="dropdown-box"></select>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Choose Mare:</label>
+                <select id="mare-select" class="dropdown-box"></select>
+            </div>
+
+            <div class="action-card" style="text-align: center; padding: 20px;" onclick="breedHorses()">
+                <h4>🧬 Breed Pair</h4>
+                <p>Inherits coat color from parents & rolls for star tier upgrade.</p>
+                <div class="cost" style="margin-top: 10px;">💎 5 Diamonds</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
 </html>
