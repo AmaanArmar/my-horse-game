@@ -171,39 +171,24 @@ function breedHorses() {
 }
 
 // 3-Lap Championship Race with Animated AI Opponents
-function startLiveRace() {
-    let active = gameData.horses[gameData.activeHorseIndex];
-    if (active.energy < 25) { alert("Your horse is too tired! Feed or rest them first."); return; }
-    active.energy -= 25;
-
-    let playerElem = document.getElementById('player-racer');
-    let ai1Elem = document.getElementById('ai1-racer');
-    let ai2Elem = document.getElementById('ai2-racer');
-    let lapIndicator = document.getElementById('lap-indicator');
-    
-    let trackWidth = document.getElementById('race-track').offsetWidth - 80;
-    
-    let playerPos = 0;
-    let ai1Pos = 0;
-    let ai2Pos = 0;
-    let currentLap = 1;
-    const totalLaps = 3;
-
     // Grab image elements
     const playerImg = document.getElementById('player-img');
     const ai1Img = document.getElementById('ai1-img');
     const ai2Img = document.getElementById('ai2-img');
 
-    // Frames sets
+    // Share the proper running frames from horseAssets based on coat color
     const playerFrames = horseAssets[active.coat].runningFrames;
-    const ai1Frames = horseAssets["brown"].runningFrames;
-    const ai2Frames = horseAssets["white"].runningFrames;
+    const ai1Frames = horseAssets["brown"].runningFrames; // Uses brown running frames
+    const ai2Frames = horseAssets["white"].runningFrames; // Uses white running frames
 
     playerImg.src = playerFrames[0];
     ai1Img.src = ai1Frames[0];
     ai2Img.src = ai2Frames[0];
 
     // Animate all horses running frames continuously
+    let ai1FrameIndex = 0;
+    let ai2FrameIndex = 0;
+
     if (animationInterval) clearInterval(animationInterval);
     animationInterval = setInterval(() => {
         currentFrameIndex = (currentFrameIndex + 1) % playerFrames.length;
@@ -214,6 +199,7 @@ function startLiveRace() {
         ai1Img.src = ai1Frames[ai1FrameIndex];
         ai2Img.src = ai2Frames[ai2FrameIndex];
     }, 100);
+
 
     if (raceInterval) clearInterval(raceInterval);
 
