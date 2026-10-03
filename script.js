@@ -78,7 +78,6 @@ function switchTab(tabId) {
     document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
     document.getElementById(tabId + '-tab').classList.add('active');
     
-    // Safety check for event target
     if (event && event.currentTarget) {
         event.currentTarget.classList.add('active');
     }
