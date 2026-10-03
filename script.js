@@ -21,10 +21,6 @@ const horseAssets = {
     }
 };
 
-let currentFrameIndex = 0;
-let ai1FrameIndex = 0;
-let ai2FrameIndex = 0;
-
 let animationInterval = null;
 let raceInterval = null;
 
@@ -81,7 +77,11 @@ function switchTab(tabId) {
     document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
     document.getElementById(tabId + '-tab').classList.add('active');
-    event.currentTarget.classList.add('active');
+    
+    // Safety check for event target
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    }
 }
 
 function selectActiveHorse(index) {
@@ -171,35 +171,52 @@ function breedHorses() {
 }
 
 // 3-Lap Championship Race with Animated AI Opponents
-    // Grab image elements
+function startLiveRace() {
+    let active = gameData.horses[gameData.activeHorseIndex];
+    if (active.energy < 25) { alert("Your horse is too tired! Feed or rest them first."); return; }
+    active.energy -= 25;
+
+    let playerElem = document.getElementById('player-racer');
+    let ai1Elem = document.getElementById('ai1-racer');
+    let ai2Elem = document.getElementById('ai2-racer');
+    let lapIndicator = document.getElementById('lap-indicator');
+    
+    let trackContainer = document.getElementById('race-track');
+    if (!trackContainer) return;
+    let trackWidth = trackContainer.offsetWidth - 80;
+    
+    let playerPos = 0;
+    let ai1Pos = 0;
+    let ai2Pos = 0;
+    let currentLap = 1;
+    const totalLaps = 3;
+
     const playerImg = document.getElementById('player-img');
     const ai1Img = document.getElementById('ai1-img');
     const ai2Img = document.getElementById('ai2-img');
 
-    // Share the proper running frames from horseAssets based on coat color
     const playerFrames = horseAssets[active.coat].runningFrames;
-    const ai1Frames = horseAssets["brown"].runningFrames; // Uses brown running frames
-    const ai2Frames = horseAssets["white"].runningFrames; // Uses white running frames
+    const ai1Frames = horseAssets["brown"].runningFrames;
+    const ai2Frames = horseAssets["white"].runningFrames;
 
-    playerImg.src = playerFrames[0];
-    ai1Img.src = ai1Frames[0];
-    ai2Img.src = ai2Frames[0];
+    if (playerImg) playerImg.src = playerFrames[0];
+    if (ai1Img) ai1Img.src = ai1Frames[0];
+    if (ai2Img) ai2Img.src = ai2Frames[0];
 
-    // Animate all horses running frames continuously
-    let ai1FrameIndex = 0;
-    let ai2FrameIndex = 0;
+    let pFrameIdx = 0;
+    let ai1FrameIdx = 0;
+    let ai2FrameIdx = 0;
 
     if (animationInterval) clearInterval(animationInterval);
     animationInterval = setInterval(() => {
-        currentFrameIndex = (currentFrameIndex + 1) % playerFrames.length;
-        ai1FrameIndex = (ai1FrameIndex + 1) % ai1Frames.length;
-        ai2FrameIndex = (ai2FrameIndex + 1) % ai2Frames.length;
+        pFrameIdx = (pFrameIdx + 1) % playerFrames.length;
+        ai1FrameIdx = (ai1FrameIdx + 1) % ai1Frames.length;
+        ai2FrameIdx = (ai2FrameIdx + 1) % ai2Frames.length;
 
-        playerImg.src = playerFrames[currentFrameIndex];
-        ai1Img.src = ai1Frames[ai1FrameIndex];
-        ai2Img.src = ai2Frames[ai2FrameIndex];
+        if (playerImg) playerImg.src = playerFrames[pFrameIdx];
+        if (ai1Img) ai1Img.src = ai1Frames[ai1FrameIdx];
+        if (ai2Img) ai2Img.src = ai2Frames[ai2FrameIdx];
     }, 100);
-
 
     if (raceInterval) clearInterval(raceInterval);
 
@@ -212,14 +229,14 @@ function breedHorses() {
         ai1Pos += ai1Speed;
         ai2Pos += ai2Speed;
 
-        playerElem.style.left = playerPos + 'px';
-        ai1Elem.style.left = ai1Pos + 'px';
-        ai2Elem.style.left = ai2Pos + 'px';
+        if (playerElem) playerElem.style.left = playerPos + 'px';
+        if (ai1Elem) ai1Elem.style.left = ai1Pos + 'px';
+        if (ai2Elem) ai2Elem.style.left = ai2Pos + 'px';
 
         if (playerPos >= trackWidth || ai1Pos >= trackWidth || ai2Pos >= trackWidth) {
             if (currentLap < totalLaps) {
                 currentLap++;
-                lapIndicator.innerText = `Lap ${currentLap} / ${totalLaps}`;
+                if (lapIndicator) lapIndicator.innerText = `Lap ${currentLap} / ${totalLaps}`;
                 playerPos = 0;
                 ai1Pos = 0;
                 ai2Pos = 0;
@@ -232,15 +249,15 @@ function breedHorses() {
 
                 alert(`🏆 Championship Finished! ${active.name} completed all 3 laps and won 🪙 ${prizeGold} Gold!`);
                 
-                playerElem.style.left = '0px';
-                ai1Elem.style.left = '0px';
-                ai2Elem.style.left = '0px';
-                lapIndicator.innerText = `Lap 1 / 3`;
+                if (playerElem) playerElem.style.left = '0px';
+                if (ai1Elem) ai1Elem.style.left = '0px';
+                if (ai2Elem) ai2Elem.style.left = '0px';
+                if (lapIndicator) lapIndicator.innerText = `Lap 1 / 3`;
                 updateUI();
             }
         }
     }, 30);
 }
 
+// Initialize the game UI on load
 updateUI();
-                    
