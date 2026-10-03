@@ -18,6 +18,40 @@ const GRAVITY = 0.7;
 const JUMP_STRENGTH = 15;
 const BASE_SPEED = 6;
 
+function drawHorseFallback(ctx, x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  // Body
+  ctx.fillStyle = '#d9bf87';
+  ctx.fillRect(30, 45, 170, 80);
+
+  // Neck and head
+  ctx.fillRect(185, 55, 55, 26);
+  ctx.fillRect(235, 40, 32, 26);
+
+  // Legs
+  ctx.fillStyle = '#b88a4a';
+  ctx.fillRect(48, 125, 18, 42);
+  ctx.fillRect(88, 125, 18, 42);
+  ctx.fillRect(138, 125, 18, 42);
+  ctx.fillRect(178, 125, 18, 42);
+
+  // Mane and eye
+  ctx.fillStyle = '#4b2d17';
+  ctx.fillRect(190, 32, 8, 24);
+  ctx.fillRect(200, 26, 8, 20);
+  ctx.fillRect(210, 24, 8, 18);
+  ctx.fillStyle = '#111827';
+  ctx.fillRect(246, 50, 5, 5);
+
+  // Tail
+  ctx.fillStyle = '#b88a4a';
+  ctx.fillRect(20, 68, 18, 12);
+
+  ctx.restore();
+}
+
 function App() {
   const canvasRef = useRef(null);
   const [imagesLoaded, setImagesLoaded] = useState(false);
@@ -40,20 +74,26 @@ function App() {
   useEffect(() => {
     const images = {};
     let loaded = 0;
+    const total = HORSE_ANIMATION_FRAMES.length;
+
+    if (total === 0) {
+      setImagesLoaded(true);
+      return;
+    }
 
     HORSE_ANIMATION_FRAMES.forEach((src) => {
       const img = new Image();
       img.onload = () => {
         images[src] = img;
         loaded += 1;
-        if (loaded === HORSE_ANIMATION_FRAMES.length) {
+        if (loaded === total) {
           imageRefs.current = images;
           setImagesLoaded(true);
         }
       };
       img.onerror = () => {
         loaded += 1;
-        if (loaded === HORSE_ANIMATION_FRAMES.length) {
+        if (loaded === total) {
           imageRefs.current = {};
           setImagesLoaded(true);
         }
@@ -261,8 +301,7 @@ function App() {
     if (horseImage) {
       ctx.drawImage(horseImage, HORSE_X, gameState.playerY, HORSE_WIDTH, HORSE_HEIGHT);
     } else {
-      ctx.fillStyle = '#e8d7b1';
-      ctx.fillRect(HORSE_X, gameState.playerY, HORSE_WIDTH, HORSE_HEIGHT);
+      drawHorseFallback(ctx, HORSE_X, gameState.playerY);
     }
 
     // HUD
