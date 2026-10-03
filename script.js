@@ -4,34 +4,37 @@ let gameData = {
     diamonds: 58,
     activeHorseIndex: 0,
     horses: [
-        { name: "Misty", gender: "Mare", breed: "Arabian", coat: "white", stars: 1, power: 100, energy: 95 },
-        { name: "Shadow", gender: "Mare", breed: "Arabian", coat: "brown", stars: 1, power: 98, energy: 90 }
+        { name: "Misty", gender: "Mare", breed: "Arabian", coat: "white", stars: 1, power: 100, energy: 95, stats: { speed: 12, stamina: 10, acceleration: 10, agility: 10, jump: 8 } },
+        { name: "Shadow", gender: "Mare", breed: "Arabian", coat: "brown", stars: 1, power: 98, energy: 90, stats: { speed: 11, stamina: 10, acceleration: 9, agility: 10, jump: 8 } },
+        { name: "Blaze", gender: "Stallion", breed: "Thoroughbred", coat: "brown", stars: 1, power: 102, energy: 100, stats: { speed: 13, stamina: 11, acceleration: 10, agility: 9, jump: 9 } },
+        { name: "Spirit", gender: "Stallion", breed: "Thoroughbred", coat: "white", stars: 1, power: 105, energy: 100, stats: { speed: 14, stamina: 12, acceleration: 11, agility: 10, jump: 10 } }
     ]
 };
 
-// Image Assets Mapping for Animations
+// Image Assets Mapping (Using your exact number format or custom filenames)
 const horseAssets = {
     white: {
-        standstill: "assets/3903_2.png", //[span_2](start_span)[span_2](end_span) Initial standing pose
+        standstill: "assets/3903_2.png",
         runningFrames: [
-            "assets/3905_2.png", //[span_3](start_span)[span_3](end_span)
-            "assets/3906_2.png", //[span_4](start_span)[span_4](end_span)
-            "assets/3907_2.png", //[span_5](start_span)[span_5](end_span)
-            "assets/3909_2.png"  //[span_6](start_span)[span_6](end_span)
+            "assets/3905_2.png",
+            "assets/3906_2.png",
+            "assets/3907_2.png",
+            "assets/3909_2.png"
         ]
     },
     brown: {
-        standstill: "assets/4017.png", //[span_7](start_span)[span_7](end_span) Initial standing pose
+        standstill: "assets/4017.png",
         runningFrames: [
-            "assets/4018.png", //[span_8](start_span)[span_8](end_span)
-            "assets/4019.png", //[span_9](start_span)[span_9](end_span)
-            "assets/4020.png"  //[span_10](start_span)[span_10](end_span)
+            "assets/4018.png",
+            "assets/4019.png",
+            "assets/4020.png"
         ]
     }
 };
 
 let currentFrameIndex = 0;
 let animationInterval = null;
+let raceInterval = null;
 
 // Update UI Elements
 function updateUI() {
@@ -39,24 +42,28 @@ function updateUI() {
     document.getElementById('diamond-display').innerText = gameData.diamonds;
 
     let active = gameData.horses[gameData.activeHorseIndex];
+    if (!active.stats) {
+        active.stats = { speed: 12, stamina: 10, acceleration: 10, agility: 10, jump: 8 };
+    }
+
     document.getElementById('horse-name-display').innerText = active.name;
     document.getElementById('horse-meta-display').innerText = `${active.gender} | ${active.breed} | ${active.coat.toUpperCase()}`;
     document.getElementById('active-stars').innerText = "★".repeat(active.stars) + ` (${active.stars} Star)`;
     document.getElementById('power-display').innerText = active.power;
     document.getElementById('energy-display').innerText = active.energy;
 
-    // Set horse image to standstill by default when viewing stable
+    // Set stable image to standstill pose
     setStandstill(active.coat, 'horse-image-display');
 
-    // Render Stable Inventory
+    // Render Stable Inventory List
     let inventoryHtml = "";
     gameData.horses.forEach((h, index) => {
         inventoryHtml += `
-            <div class="stable-horse-item" style="cursor:pointer;" onclick="selectActiveHorse(${index})">
+            <div class="stable-horse-item" onclick="selectActiveHorse(${index})" style="cursor:pointer;">
                 <div>
                     <strong>${h.name}</strong> <span style="font-size:0.75rem; color:var(--text-muted);">(${h.gender}, ${h.coat})</span>
                 </div>
-                <div style="font-size: 0.8rem; color: var(--accent-gold);">
+                <div style="font-size: 0.8rem; color: var(--accent-orange);">
                     ${index === gameData.activeHorseIndex ? '✓ Active' : 'Select'}
                 </div>
             </div>`;
@@ -74,7 +81,7 @@ function updateUI() {
     let mares = gameData.horses.filter(h => h.gender === "Mare");
 
     if(stallions.length === 0) {
-        stallionSelect.innerHTML = `<option value="">-- No Stallions Available (Buy one!) --</option>`;
+        stallionSelect.innerHTML = `<option value="">-- No Stallions Available --</option>`;
     } else {
         stallions.forEach((s) => {
             stallionSelect.innerHTML += `<option value="${gameData.horses.indexOf(s)}">${s.name} (${s.coat}, ${s.stars}★)</option>`;
@@ -90,31 +97,31 @@ function updateUI() {
     }
 }
 
-// Set Standstill Image
-function setStandstill(horseColor, imageElementId) {
-    const imgElement = document.getElementById(imageElementId);
-    if (imgElement && horseAssets[horseColor]) {
-        imgElement.src = horseAssets[horseColor].standstill;
+// Standstill image helper
+function setStandstill(horseColor, elementId) {
+    const el = document.getElementById(elementId);
+    if (el && horseAssets[horseColor]) {
+        el.src = horseAssets[horseColor].standstill;
     }
 }
 
-// Start Running Animation Loop
-function startRaceAnimation(horseColor, imageElementId, speedStat) {
-    const imgElement = document.getElementById(imageElementId);
-    if (!imgElement || !horseAssets[horseColor]) return;
+// Running animation loop controller
+function startRaceAnimation(horseColor, elementId, speedStat) {
+    const el = document.getElementById(elementId);
+    if (!el || !horseAssets[horseColor]) return;
     
     const frames = horseAssets[horseColor].runningFrames;
-    let frameRate = Math.max(80, 200 - (speedStat * 2)); 
+    let frameRate = Math.max(70, 180 - (speedStat * 3)); 
 
     if (animationInterval) clearInterval(animationInterval);
 
     animationInterval = setInterval(() => {
-        imgElement.src = frames[currentFrameIndex];
+        el.src = frames[currentFrameIndex];
         currentFrameIndex = (currentFrameIndex + 1) % frames.length;
     }, frameRate);
 }
 
-// Tab Switching
+// Tab Switching Logic
 function switchTab(tabId) {
     document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
@@ -128,7 +135,43 @@ function selectActiveHorse(index) {
     updateUI();
 }
 
-// Buy Random Horse Logic
+// Caring System (Feed / Rest)
+function careForHorse(actionType) {
+    let active = gameData.horses[gameData.activeHorseIndex];
+
+    if (actionType === 'feed') {
+        if (gameData.gold < 50) { alert("Need 🪙 50 Gold to feed!"); return; }
+        gameData.gold -= 50;
+        active.energy = Math.min(100, active.energy + 25);
+        alert(`${active.name} was fed and gained energy!`);
+    } else if (actionType === 'rest') {
+        if (gameData.gold < 100) { alert("Need 🪙 100 Gold for stable rest!"); return; }
+        gameData.gold -= 100;
+        active.energy = 100;
+        alert(`${active.name} is fully rested!`);
+    }
+    updateUI();
+}
+
+// Training System
+function trainHorseStat(statName) {
+    let active = gameData.horses[gameData.activeHorseIndex];
+    let cost = 150;
+
+    if (gameData.gold < cost) {
+        alert(`Training requires 🪙 ${cost} Gold!`);
+        return;
+    }
+
+    gameData.gold -= cost;
+    active.stats[statName] += 2;
+    active.power += 5;
+    
+    updateUI();
+    alert(`Success! ${active.name}'s ${statName.toUpperCase()} increased!`);
+}
+
+// Buy Random Horse
 function buyRandomHorse() {
     if (gameData.gold < 500) {
         alert("Need 🪙 500 Gold to buy a random horse!");
@@ -147,7 +190,8 @@ function buyRandomHorse() {
         coat: coats[Math.floor(Math.random() * coats.length)],
         stars: 1,
         power: 100 + Math.floor(Math.random() * 10),
-        energy: 100
+        energy: 100,
+        stats: { speed: 12, stamina: 10, acceleration: 10, agility: 10, jump: 8 }
     };
 
     gameData.horses.push(newHorse);
@@ -195,7 +239,8 @@ function breedHorses() {
         coat: inheritedCoat,
         stars: newStars,
         power: Math.round(((sire.power + dam.power) / 2) + (newStars * 10)),
-        energy: 100
+        energy: 100,
+        stats: { speed: sire.stats.speed + 2, stamina: dam.stats.stamina + 2, acceleration: 10, agility: 10, jump: 8 }
     };
 
     gameData.horses.push(newFoal);
@@ -207,6 +252,47 @@ function breedHorses() {
     } else {
         alert(`Breed successful! Foal ${newFoal.name} born with ${newStars} Stars.`);
     }
+}
+
+// Live Race Animation Simulation
+function startLiveRace() {
+    let active = gameData.horses[gameData.activeHorseIndex];
+
+    if (active.energy < 25) {
+        alert("Your horse is too tired! Feed or rest them in the Care tab before racing.");
+        return;
+    }
+
+    active.energy -= 25;
+
+    let racerElement = document.getElementById('racer-container');
+    let trackWidth = document.getElementById('race-track').offsetWidth - 120;
+    let currentPosition = 0;
+
+    // Start running frame sequence using horse coat type and speed stat
+    startRaceAnimation(active.coat, 'racer-horse-img', active.stats.speed);
+
+    if (raceInterval) clearInterval(raceInterval);
+
+    raceInterval = setInterval(() => {
+        let moveSpeed = 2 + (active.stats.speed * 0.25);
+        currentPosition += moveSpeed;
+
+        racerElement.style.left = currentPosition + 'px';
+
+        if (currentPosition >= trackWidth) {
+            clearInterval(raceInterval);
+            if (animationInterval) clearInterval(animationInterval);
+
+            let prizeGold = 250 + (active.stars * 75);
+            gameData.gold += prizeGold;
+            
+            alert(`🏁 Race Finished! ${active.name} crossed the line and won 🪙 ${prizeGold} Gold!`);
+            
+            racerElement.style.left = '0px';
+            updateUI();
+        }
+    }, 30);
 }
 
 // Initial Run
