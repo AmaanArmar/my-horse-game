@@ -14,23 +14,24 @@ let gameData = {
 // Image Assets Mapping (Using your exact number format or custom filenames)
 const horseAssets = {
     white: {
-        standstill: "assets/3903_2.png",
+        standstill: "3903_2.png",
         runningFrames: [
-            "assets/3905_2.png",
-            "assets/3906_2.png",
-            "assets/3907_2.png",
-            "assets/3909_2.png"
+            "3905_2.png",
+            "3906_2.png",
+            "3907_2.png",
+            "3909_2.png"
         ]
     },
     brown: {
-        standstill: "assets/4017.png",
+        standstill: "4017.png",
         runningFrames: [
-            "assets/4018.png",
-            "assets/4019.png",
-            "assets/4020.png"
+            "4018.png",
+            "4019.png",
+            "4020.png"
         ]
     }
 };
+
 
 let currentFrameIndex = 0;
 let animationInterval = null;
