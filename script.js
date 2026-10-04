@@ -23,40 +23,66 @@ function rgbToHex(r, g, b) {
     }).join("");
 }
 
-// Realistic natural tint function that avoids neon over-saturation
-function createTintedHorseImage(hexColor, callback) {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = "3903_2.png";
-    img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        
-        ctx.drawImage(img, 0, 0);
-        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imgData.data;
-        const targetRgb = hexToRgb(hexColor);
+// Frame filenames available in your project
+const frameFiles = ["3903_2.png", "3905_2.png", "3906_2.png", "3907_2.png", "3909_2.png"];
 
-        for (let i = 0; i < data.length; i += 4) {
-            let a = data[i + 3];
-            if (a > 20) { 
-                let r = data[i];
-                let g = data[i + 1];
-                let b = data[i + 2];
-                
-                // Balanced multiplier preserving shadows & highlights without neon blowouts
-                let luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-                data[i] = Math.round(targetRgb.r * luminance * 0.9 + r * 0.1);
-                data[i + 1] = Math.round(targetRgb.g * luminance * 0.9 + g * 0.1);
-                data[i + 2] = Math.round(targetRgb.b * luminance * 0.9 + b * 0.1);
+// Cache to store pre-tinted frames for each color so animations run instantly without lag
+let tintedFramesCache = {};
+
+// Pre-load and tint all animation frames for a given hex color
+function loadTintedFrames(hexColor, callback) {
+    if (tintedFramesCache[hexColor]) {
+        callback(tintedFramesCache[hexColor]);
+        return;
+    }
+
+    let loadedCount = 0;
+    let tintedArray = new Array(frameFiles.length);
+
+    frameFiles.forEach((filename, index) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = filename;
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.drawImage(img, 0, 0);
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imgData.data;
+            const targetRgb = hexToRgb(hexColor);
+
+            for (let i = 0; i < data.length; i += 4) {
+                let a = data[i + 3];
+                if (a > 20) { 
+                    let r = data[i];
+                    let g = data[i + 1];
+                    let b = data[i + 2];
+                    
+                    let luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                    data[i] = Math.round(targetRgb.r * luminance * 0.9 + r * 0.1);
+                    data[i + 1] = Math.round(targetRgb.g * luminance * 0.9 + g * 0.1);
+                    data[i + 2] = Math.round(targetRgb.b * luminance * 0.9 + b * 0.1);
+                }
             }
-        }
-        ctx.putImageData(imgData, 0, 0);
-        callback(canvas.toDataURL());
-    };
-    img.onerror = () => callback("");
+            ctx.putImageData(imgData, 0, 0);
+            tintedArray[index] = canvas.toDataURL();
+            loadedCount++;
+
+            if (loadedCount === frameFiles.length) {
+                tintedFramesCache[hexColor] = tintedArray;
+                callback(tintedArray);
+            }
+        };
+        img.onerror = () => {
+            loadedCount++;
+            if (loadedCount === frameFiles.length) {
+                callback(tintedArray);
+            }
+        };
+    });
 }
 
 function updateUI() {
@@ -77,8 +103,8 @@ function updateUI() {
 
     const activeImg = document.getElementById('horse-image-display');
     if (activeImg) {
-        createTintedHorseImage(active.hex, (tintedUrl) => {
-            if (tintedUrl) activeImg.src = tintedUrl;
+        loadTintedFrames(active.hex, (frames) => {
+            if (frames && frames[0]) activeImg.src = frames[0];
         });
     }
 
@@ -267,69 +293,75 @@ function startLiveRace() {
     const ai1Img = document.getElementById('ai1-img');
     const ai2Img = document.getElementById('ai2-img');
 
-    // Generate natural, realistic coat tints for player and AI horses
-    if (playerImg) createTintedHorseImage(active.hex, (url) => { if (url) playerImg.src = url; });
-    if (ai1Img) createTintedHorseImage("#5e5854", (url) => { if (url) ai1Img.src = url; }); // Smoky Bay
-    if (ai2Img) createTintedHorseImage("#ad754c", (url) => { if (url) ai2Img.src = url; }); // Chestnut
+    // Load actual frame sequences for player, AI1 (#5e5854), and AI2 (#ad754c)
+    loadTintedFrames(active.hex, (playerFrames) => {
+        loadTintedFrames("#5e5854", (ai1Frames) => {
+            loadTintedFrames("#ad754c", (ai2Frames) => {
 
-    if (raceInterval) clearInterval(raceInterval);
+                if (raceInterval) clearInterval(raceInterval);
+                let frameStep = 0;
 
-    let frameStep = 0;
+                raceInterval = setInterval(() => {
+                    frameStep++;
+                    
+                    // Smooth acceleration throttle curve from standing start
+                    let throttleFactor = Math.min(1.4, 0.5 + (frameStep * 0.02));
 
-    raceInterval = setInterval(() => {
-        // Accelerating throttle phase & sprint movement
-        frameStep++;
-        let throttleFactor = Math.min(1.5, 0.8 + (frameStep * 0.01)); // Accelerates smoothly from standing position
+                    let playerSpeed = (1.2 + (active.stats.speed * 0.08) + (Math.random() * 0.5)) * throttleFactor;
+                    let ai1Speed = (1.5 + (Math.random() * 0.7)) * throttleFactor;
+                    let ai2Speed = (1.4 + (Math.random() * 0.7)) * throttleFactor;
 
-        let playerSpeed = (1.2 + (active.stats.speed * 0.08) + (Math.random() * 0.5)) * throttleFactor;
-        let ai1Speed = (1.5 + (Math.random() * 0.7)) * throttleFactor;
-        let ai2Speed = (1.4 + (Math.random() * 0.7)) * throttleFactor;
+                    playerPos += playerSpeed;
+                    ai1Pos += ai1Speed;
+                    ai2Pos += ai2Speed;
 
-        playerPos += playerSpeed;
-        ai1Pos += ai1Speed;
-        ai2Pos += ai2Speed;
+                    if (playerElem) playerElem.style.left = playerPos + 'px';
+                    if (ai1Elem) ai1Elem.style.left = ai1Pos + 'px';
+                    if (ai2Elem) ai2Elem.style.left = ai2Pos + 'px';
 
-        if (playerElem) playerElem.style.left = playerPos + 'px';
-        if (ai1Elem) ai1Elem.style.left = ai1Pos + 'px';
-        if (ai2Elem) ai2Elem.style.left = ai2Pos + 'px';
+                    // Cycle through the actual frame files based on speed/step to animate galloping
+                    let frameIndex = Math.floor(frameStep / 3) % frameFiles.length;
 
-        // Dynamic galloping stride bounce tied to speed
-        let strideBounce = Math.sin(frameStep * 0.8) * 3;
-        let strideStretch = 1 + (Math.sin(frameStep * 1.6) * 0.04);
-        if (playerImg) playerImg.style.transform = `translateY(${strideBounce}px) scaleX(${strideStretch})`;
-        if (ai1Img) ai1Img.style.transform = `translateY(${-strideBounce}px) scaleX(${1 / strideStretch})`;
-        if (ai2Img) ai2Img.style.transform = `translateY(${strideBounce}px) scaleX(${strideStretch})`;
+                    if (playerImg && playerFrames && playerFrames[frameIndex]) {
+                        playerImg.src = playerFrames[frameIndex];
+                    }
+                    if (ai1Img && ai1Frames && ai1Frames[frameIndex]) {
+                        ai1Img.src = ai1Frames[frameIndex];
+                    }
+                    if (ai2Img && ai2Frames && ai2Frames[frameIndex]) {
+                        ai2Img.src = ai2Frames[frameIndex];
+                    }
 
-        if (playerPos >= trackWidth || ai1Pos >= trackWidth || ai2Pos >= trackWidth) {
-            if (currentLap < totalLaps) {
-                currentLap++;
-                if (lapIndicator) lapIndicator.innerText = `Lap ${currentLap} / ${totalLaps}`;
-                playerPos = 0;
-                ai1Pos = 0;
-                ai2Pos = 0;
-                frameStep = 0;
-            } else {
-                clearInterval(raceInterval);
+                    if (playerPos >= trackWidth || ai1Pos >= trackWidth || ai2Pos >= trackWidth) {
+                        if (currentLap < totalLaps) {
+                            currentLap++;
+                            if (lapIndicator) lapIndicator.innerText = `Lap ${currentLap} / ${totalLaps}`;
+                            playerPos = 0;
+                            ai1Pos = 0;
+                            ai2Pos = 0;
+                            frameStep = 0;
+                        } else {
+                            clearInterval(raceInterval);
 
-                if (playerImg) playerImg.style.transform = 'none';
-                if (ai1Img) ai1Img.style.transform = 'none';
-                if (ai2Img) ai2Img.style.transform = 'none';
+                            let prizeGold = 300 + (active.stars * 150);
+                            let prizeGems = 2 + Math.floor(active.stars / 2);
+                            gameData.gold += prizeGold;
+                            gameData.diamonds += prizeGems;
 
-                let prizeGold = 300 + (active.stars * 150);
-                let prizeGems = 2 + Math.floor(active.stars / 2);
-                gameData.gold += prizeGold;
-                gameData.diamonds += prizeGems;
+                            alert(`🏆 Victory! ${active.name} won 🪙 ${prizeGold} Gold and 💎 ${prizeGems} Gems!`);
+                            
+                            if (playerElem) playerElem.style.left = '0px';
+                            if (ai1Elem) ai1Elem.style.left = '0px';
+                            if (ai2Elem) ai2Elem.style.left = '0px';
+                            if (lapIndicator) lapIndicator.innerText = `Lap 1 / 3`;
+                            updateUI();
+                        }
+                    }
+                }, 30);
 
-                alert(`🏆 Victory! ${active.name} won 🪙 ${prizeGold} Gold and 💎 ${prizeGems} Gems!`);
-                
-                if (playerElem) playerElem.style.left = '0px';
-                if (ai1Elem) ai1Elem.style.left = '0px';
-                if (ai2Elem) ai2Elem.style.left = '0px';
-                if (lapIndicator) lapIndicator.innerText = `Lap 1 / 3`;
-                updateUI();
-            }
-        }
-    }, 30);
+            });
+        });
+    });
 }
 
 updateUI();
