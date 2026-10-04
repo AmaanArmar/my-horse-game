@@ -36,7 +36,6 @@
         .stable-horse-item { background: #27272a; padding: 12px; border-radius: 6px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--accent-gold); cursor: pointer; }
         .grade-badge { background: var(--accent-gold); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
         
-        /* Dynamic Coat Color Container */
         .horse-sprite-box {
             width: 80px;
             height: 80px;
@@ -169,64 +168,72 @@
         const frameFiles = ["3903_2.png", "3905_2.png", "3906_2.png", "3907_2.png", "3909_2.png"];
 
         function updateUI() {
-            document.getElementById('gold-display').innerText = `🪙 ${gameData.gold}`;
-            document.getElementById('diamond-display').innerText = `💎 ${gameData.diamonds}`;
-            document.getElementById('slot-count').innerText = gameData.horses.length;
+            try {
+                const getEl = (id) => document.getElementById(id);
+                
+                if (getEl('gold-display')) getEl('gold-display').innerText = `🪙 ${gameData.gold}`;
+                if (getEl('diamond-display')) getEl('diamond-display').innerText = `💎 ${gameData.diamonds}`;
+                if (getEl('slot-count')) getEl('slot-count').innerText = gameData.horses.length;
 
-            let active = gameData.horses[gameData.activeHorseIndex];
-            document.getElementById('horse-name-display').innerText = active.name;
-            document.getElementById('horse-meta-display').innerHTML = `${active.gender} | ${active.breed}`;
-            document.getElementById('active-stars').innerText = `Grade ${active.stars}★`;
-            document.getElementById('active-coat-name').innerText = active.coat.name;
-            document.getElementById('active-hidden-coat').innerText = active.hiddenCoat.name;
-            document.getElementById('energy-display').innerText = active.energy;
+                let active = gameData.horses[gameData.activeHorseIndex] || gameData.horses[0];
+                
+                if (getEl('horse-name-display')) getEl('horse-name-display').innerText = active.name;
+                if (getEl('horse-meta-display')) getEl('horse-meta-display').innerHTML = `${active.gender} | ${active.breed}`;
+                if (getEl('active-stars')) getEl('active-stars').innerText = `Grade ${active.stars}★`;
+                if (getEl('active-coat-name')) getEl('active-coat-name').innerText = active.coat.name;
+                if (getEl('active-hidden-coat')) getEl('active-hidden-coat').innerText = active.hiddenCoat.name;
+                if (getEl('energy-display')) getEl('energy-display').innerText = active.energy;
 
-            let activeContainer = document.getElementById('active-sprite-container');
-            if (activeContainer) activeContainer.style.backgroundColor = active.coat.hex;
+                let activeContainer = getEl('active-sprite-container');
+                if (activeContainer) activeContainer.style.backgroundColor = active.coat.hex;
 
-            let playerContainer = document.getElementById('player-sprite-box');
-            if (playerContainer) playerContainer.style.backgroundColor = active.coat.hex;
+                let playerContainer = getEl('player-sprite-box');
+                if (playerContainer) playerContainer.style.backgroundColor = active.coat.hex;
 
-            let inventoryHtml = "";
-            gameData.horses.forEach((h, index) => {
-                inventoryHtml += `
-                    <div class="stable-horse-item" onclick="selectActiveHorse(${index})" style="border-left-color: ${h.coat.hex};">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div class="horse-sprite-box" style="width: 50px; height: 50px; background-color: ${h.coat.hex};">
-                                <img src="3903_2.png" style="width: 45px;" alt="Icon">
+                let inventoryHtml = "";
+                gameData.horses.forEach((h, index) => {
+                    inventoryHtml += `
+                        <div class="stable-horse-item" onclick="selectActiveHorse(${index})" style="border-left-color: ${h.coat.hex};">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="horse-sprite-box" style="width: 50px; height: 50px; background-color: ${h.coat.hex};">
+                                    <img src="3903_2.png" style="width: 45px;" alt="Icon">
+                                </div>
+                                <div>
+                                    <strong>${h.name}</strong> (${h.gender}, ${h.breed})<br>
+                                    <span style="font-size: 0.75rem; color: var(--text-muted);">Coat: ${h.coat.name} | Hidden: ${h.hiddenCoat.name} | Stars: ${h.stars}★</span>
+                                </div>
                             </div>
-                            <div>
-                                <strong>${h.name}</strong> (${h.gender}, ${h.breed})<br>
-                                <span style="font-size: 0.75rem; color: var(--text-muted);">Coat: ${h.coat.name} | Hidden: ${h.hiddenCoat.name} | Stars: ${h.stars}★</span>
+                            <div style="font-size: 0.85rem; font-weight: bold; color: ${index === gameData.activeHorseIndex ? 'var(--accent-gold)' : 'var(--text-muted)'};">
+                                ${index === gameData.activeHorseIndex ? '✓ Active Slot' : 'Select'}
                             </div>
-                        </div>
-                        <div style="font-size: 0.85rem; font-weight: bold; color: ${index === gameData.activeHorseIndex ? 'var(--accent-gold)' : 'var(--text-muted)'};">
-                            ${index === gameData.activeHorseIndex ? '✓ Active Slot' : 'Select'}
-                        </div>
-                    </div>`;
-            });
-            document.getElementById('stable-inventory').innerHTML = inventoryHtml;
+                        </div>`;
+                });
+                if (getEl('stable-inventory')) getEl('stable-inventory').innerHTML = inventoryHtml;
 
-            let stallionSelect = document.getElementById('stallion-select');
-            let mareSelect = document.getElementById('mare-select');
-            if (stallionSelect && mareSelect) {
-                stallionSelect.innerHTML = "";
-                mareSelect.innerHTML = "";
-                let stallions = gameData.horses.filter(h => h.gender === "Stallion");
-                let mares = gameData.horses.filter(h => h.gender === "Mare");
+                let stallionSelect = getEl('stallion-select');
+                let mareSelect = getEl('mare-select');
+                if (stallionSelect && mareSelect) {
+                    stallionSelect.innerHTML = "";
+                    mareSelect.innerHTML = "";
+                    let stallions = gameData.horses.filter(h => h.gender === "Stallion");
+                    let mares = gameData.horses.filter(h => h.gender === "Mare");
 
-                if (stallions.length === 0) stallionSelect.innerHTML = `<option value="">-- None Available --</option>`;
-                else stallions.forEach(s => stallionSelect.innerHTML += `<option value="${gameData.horses.indexOf(s)}">${s.name} (${s.coat.name}, ${s.stars}★)</option>`);
+                    if (stallions.length === 0) stallionSelect.innerHTML = `<option value="">-- None Available --</option>`;
+                    else stallions.forEach(s => stallionSelect.innerHTML += `<option value="${gameData.horses.indexOf(s)}">${s.name} (${s.coat.name}, ${s.stars}★)</option>`);
 
-                if (mares.length === 0) mareSelect.innerHTML = `<option value="">-- None Available --</option>`;
-                else mares.forEach(m => mareSelect.innerHTML += `<option value="${gameData.horses.indexOf(m)}">${m.name} (${m.coat.name}, ${m.stars}★)</option>`);
+                    if (mares.length === 0) mareSelect.innerHTML = `<option value="">-- None Available --</option>`;
+                    else mares.forEach(m => mareSelect.innerHTML += `<option value="${gameData.horses.indexOf(m)}">${m.name} (${m.coat.name}, ${m.stars}★)</option>`);
+                }
+            } catch (err) {
+                console.error("UI Update Error: ", err);
             }
         }
 
         function switchTab(tabId, btn) {
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId + '-tab').classList.add('active');
+            let targetTab = document.getElementById(tabId + '-tab');
+            if (targetTab) targetTab.classList.add('active');
             if (btn) btn.classList.add('active');
         }
 
@@ -273,7 +280,8 @@
         }
 
         function breedHorses() {
-            let useExoticBoost = document.getElementById('exotic-boost').checked;
+            let exoticCheckbox = document.getElementById('exotic-boost');
+            let useExoticBoost = exoticCheckbox ? exoticCheckbox.checked : false;
             let cost = useExoticBoost ? 50 : 5;
 
             if (gameData.diamonds < cost) { 
@@ -281,12 +289,15 @@
                 return; 
             }
 
-            let sIndex = document.getElementById('stallion-select').value;
-            let mIndex = document.getElementById('mare-select').value;
-            if (sIndex === "" || mIndex === "") { alert("Select one Stallion and one Mare!"); return; }
+            let sSelect = document.getElementById('stallion-select');
+            let mSelect = document.getElementById('mare-select');
+            if (!sSelect || !mSelect || sSelect.value === "" || mSelect.value === "") { 
+                alert("Select one Stallion and one Mare!"); 
+                return; 
+            }
 
-            let sire = gameData.horses[sIndex];
-            let dam = gameData.horses[mIndex];
+            let sire = gameData.horses[sSelect.value];
+            let dam = gameData.horses[mSelect.value];
             gameData.diamonds -= cost;
 
             let parentCoatPool = [sire.coat, sire.hiddenCoat, dam.coat, dam.hiddenCoat];
@@ -339,7 +350,10 @@
             let ai1Elem = document.getElementById('ai1-racer');
             let ai2Elem = document.getElementById('ai2-racer');
             let lapIndicator = document.getElementById('lap-indicator');
-            let trackWidth = document.getElementById('race-track').offsetWidth - 80;
+            let track = document.getElementById('race-track');
+            
+            if (!playerElem || !track) return;
+            let trackWidth = track.offsetWidth - 80;
 
             let playerPos = 0, ai1Pos = 0, ai2Pos = 0, currentLap = 1;
             let frameStep = 0;
@@ -349,20 +363,4 @@
             raceInterval = setInterval(() => {
                 frameStep++;
                 playerPos += 2.0 + (active.speed * 0.05) + (Math.random() * 0.8);
-                ai1Pos += 2.1 + (Math.random() * 0.8);
-                ai2Pos += 1.9 + (Math.random() * 0.8);
-
-                playerElem.style.left = playerPos + 'px';
-                ai1Elem.style.left = ai1Pos + 'px';
-                ai2Elem.style.left = ai2Pos + 'px';
-
-                let frameIndex = Math.floor(frameStep / 4) % frameFiles.length;
-                let pImg = document.getElementById('player-img');
-                let a1Img = document.getElementById('ai1-img');
-                let a2Img = document.getElementById('ai2-img');
-
-                if (pImg) pImg.src = frameFiles[frameIndex];
-                if (a1Img) a1Img.src = frameFiles[frameIndex];
-                if (a2Img) a2Img.src = frameFiles[frameIndex];
-
-                if (playerPos >= trackWid
+                ai1Pos += 2.1 + (Math.random()
