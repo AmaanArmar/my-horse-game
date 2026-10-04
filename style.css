@@ -110,30 +110,19 @@ body {
     margin-bottom: 20px;
 }
 
-/* Accurate Hex Color Tinting Container */
-.horse-color-container {
-    display: inline-block;
-    position: relative;
-    background-color: transparent;
-    border-radius: 12px;
-    padding: 5px;
-}
-
-.tinted-horse {
-    max-width: 100%;
-    height: auto;
-    max-height: 160px;
-    display: block;
-    mix-blend-mode: multiply; /* Multiplies hex background cleanly through white template */
-    transition: transform 0.3s ease;
-}
-
 .horse-wrapper {
     position: relative;
     display: inline-block;
     border-radius: 12px;
     overflow: hidden;
     margin-bottom: 10px;
+}
+
+.horse-wrapper img {
+    max-width: 100%;
+    height: auto;
+    max-height: 160px;
+    display: block;
 }
 
 .horse-info h2 {
@@ -289,5 +278,4 @@ select, input {
 .racer-horse img {
     width: 40px;
     height: auto;
-    mix-blend-mode: multiply;
 }
