@@ -36,7 +36,6 @@ function updateUI() {
         document.getElementById('diamond-display').innerText = `💎 ${gameData.diamonds}`;
         document.getElementById('slot-count').innerText = gameData.horses.length;
 
-        // Safety check if active horse index went out of bounds after selling
         if (gameData.activeHorseIndex >= gameData.horses.length) {
             gameData.activeHorseIndex = 0;
         }
@@ -152,7 +151,6 @@ function sellActiveHorse() {
     }
 
     let active = gameData.horses[gameData.activeHorseIndex];
-    // Calculate rewards based on star tier and training progress
     let goldReward = active.stars * 150 + (active.stats.speed * 3);
     let diamondReward = active.stars >= 3 ? active.stars : 1;
 
