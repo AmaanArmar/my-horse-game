@@ -35,6 +35,24 @@
         .lane { border-bottom: 2px dashed rgba(255,255,255,0.4); height: 100px; position: relative; display: flex; align-items: center; }
         .stable-horse-item { background: #27272a; padding: 12px; border-radius: 6px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--accent-gold); cursor: pointer; }
         .grade-badge { background: var(--accent-gold); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        
+        /* Dynamic Coat Color Container */
+        .horse-sprite-box {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .horse-sprite-box img {
+            width: 75px;
+            height: auto;
+            mix-blend-mode: multiply;
+            image-rendering: pixelated;
+        }
     </style>
 </head>
 <body>
@@ -43,7 +61,7 @@
             <div><h2 style="margin:0;">🐎 Advanced Horse Breeding & Race Studio</h2></div>
             <div>
                 <span id="gold-display" style="margin-right: 15px; font-weight: bold;">🪙 450</span>
-                <span id="diamond-display" style="font-weight: bold;">💎 42</span>
+                <span id="diamond-display" style="font-weight: bold;">💎 65</span>
             </div>
         </div>
 
@@ -57,8 +75,8 @@
         <div id="stable-tab" class="tab-pane active">
             <h3>Active Horse Details</h3>
             <div style="display: flex; gap: 20px; align-items: center; background: #27272a; padding: 15px; border-radius: 8px;">
-                <div style="background: #18181b; padding: 10px; border-radius: 8px; width: 90px; height: 90px; display: flex; align-items: center; justify-content: center;">
-                    <img id="horse-image-display" src="3903_2.png" style="max-width: 80px; max-height: 80px;" alt="Horse">
+                <div id="active-sprite-container" class="horse-sprite-box">
+                    <img id="horse-image-display" src="3903_2.png" alt="Horse">
                 </div>
                 <div>
                     <h2 id="horse-name-display" style="margin: 0 0 5px 0;">Misty</h2>
@@ -83,13 +101,25 @@
             <div id="lap-indicator" style="font-weight: bold; margin-bottom: 10px; color: var(--accent-gold);">Lap 1 / 3</div>
             <div id="race-track" class="racetrack">
                 <div class="lane" id="lane-player">
-                    <div id="player-racer" class="racer" style="top: 5px;"><img id="player-img" src="3903_2.png" alt="Player"></div>
+                    <div id="player-racer" class="racer" style="top: 5px;">
+                        <div id="player-sprite-box" class="horse-sprite-box" style="width: 75px; height: 75px;">
+                            <img id="player-img" src="3903_2.png" alt="Player">
+                        </div>
+                    </div>
                 </div>
                 <div class="lane" id="lane-ai1">
-                    <div id="ai1-racer" class="racer" style="top: 5px;"><img id="ai1-img" src="3903_2.png" alt="AI 1"></div>
+                    <div id="ai1-racer" class="racer" style="top: 5px;">
+                        <div class="horse-sprite-box" style="width: 75px; height: 75px; background-color: #64748b;">
+                            <img src="3903_2.png" alt="AI 1">
+                        </div>
+                    </div>
                 </div>
                 <div class="lane" id="lane-ai2" style="border-bottom: none;">
-                    <div id="ai2-racer" class="racer" style="top: 5px;"><img id="ai2-img" src="3903_2.png" alt="AI 2"></div>
+                    <div id="ai2-racer" class="racer" style="top: 5px;">
+                        <div class="horse-sprite-box" style="width: 75px; height: 75px; background-color: #ad754c;">
+                            <img src="3903_2.png" alt="AI 2">
+                        </div>
+                    </div>
                 </div>
             </div>
             <button onclick="startLiveRace()" style="margin-top: 15px; padding: 12px 24px; background: var(--accent-gold); color: #000; font-size: 1rem;">Start Live Race!</button>
@@ -98,7 +128,7 @@
         <!-- Breeding Tab -->
         <div id="breeding-tab" class="tab-pane">
             <h3>Genetics & Breeding Studio</h3>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Breed a stallion and mare. Offspring inherit coat traits and hidden genes from parents[span_4](start_span)[span_4](end_span)!</p>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Breed a stallion and mare. Offspring inherit coat traits and hidden genes from parents!</p>
             <div style="display: flex; gap: 20px; margin-bottom: 15px; flex-wrap: wrap;">
                 <div><label>Stallion:</label><br><select id="stallion-select" style="padding: 8px; width: 220px; margin-top: 5px; background: #27272a; color: #fff; border-radius: 4px;"></select></div>
                 <div><label>Mare:</label><br><select id="mare-select" style="padding: 8px; width: 220px; margin-top: 5px; background: #27272a; color: #fff; border-radius: 4px;"></select></div>
@@ -111,20 +141,16 @@
     </div>
 
     <script>
-        // Coat Library organized by Rarity Tiers (Common -> Dilutions -> Rarest / Exotic)
         const coatLibrary = [
-            // Common / Base
             { name: "Classic Brown", hex: "#8b4513", tier: "common" },
             { name: "Rich Brown", hex: "#451a03", tier: "common" },
             { name: "Classic Chestnut", hex: "#ad754c", tier: "common" },
             { name: "Copper Chestnut", hex: "#9a3412", tier: "common" },
             { name: "Classic Bay", hex: "#5c1d1d", tier: "common" },
             { name: "Blood Bay", hex: "#7c2d12", tier: "common" },
-            // Second Rarest / Dilutions
             { name: "Gray", hex: "#64748b", tier: "dilution" },
             { name: "Cream Dilution", hex: "#d1af97", tier: "dilution" },
             { name: "Champagne Dilution", hex: "#c29b61", tier: "dilution" },
-            // Rarest / Exotic
             { name: "Midnight Black", hex: "#1c1917", tier: "exotic" },
             { name: "Classic Black", hex: "#111111", tier: "exotic" },
             { name: "Classic White", hex: "#f8fafc", tier: "exotic" }
@@ -136,7 +162,7 @@
             activeHorseIndex: 0,
             horses: [
                 { name: "Misty", gender: "Mare", breed: "Arabian", stars: 1, energy: 100, speed: 12, coat: coatLibrary[2], hiddenCoat: coatLibrary[1] },
-                { name: "Shadow", gender: "Stallion", breed: "Thoroughbred", stars: 1, energy: 100, speed: 13, coat: coatLibrary[0], hiddenCoat: coatLibrary[6] }
+                { name: "Shadow", gender: "Stallion", breed: "Thoroughbred", stars: 1, energy: 100, speed: 13, coat: coatLibrary[9], hiddenCoat: coatLibrary[6] }
             ]
         };
 
@@ -155,16 +181,25 @@
             document.getElementById('active-hidden-coat').innerText = active.hiddenCoat.name;
             document.getElementById('energy-display').innerText = active.energy;
 
-            let activeImg = document.getElementById('horse-image-display');
-            if (activeImg) activeImg.src = frameFiles[0];
+            // Apply dynamic coat color container background
+            let activeContainer = document.getElementById('active-sprite-container');
+            activeContainer.style.backgroundColor = active.coat.hex;
+
+            let playerContainer = document.getElementById('player-sprite-box');
+            playerContainer.style.backgroundColor = active.coat.hex;
 
             let inventoryHtml = "";
             gameData.horses.forEach((h, index) => {
                 inventoryHtml += `
                     <div class="stable-horse-item" onclick="selectActiveHorse(${index})" style="border-left-color: ${h.coat.hex};">
-                        <div>
-                            <strong>${h.name}</strong> (${h.gender}, ${h.breed})<br>
-                            <span style="font-size: 0.75rem; color: var(--text-muted);">Coat: ${h.coat.name} | Hidden: ${h.hiddenCoat.name} | Stars: ${h.stars}★</span>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div class="horse-sprite-box" style="width: 50px; height: 50px; background-color: ${h.coat.hex};">
+                                <img src="3903_2.png" style="width: 45px;" alt="Icon">
+                            </div>
+                            <div>
+                                <strong>${h.name}</strong> (${h.gender}, ${h.breed})<br>
+                                <span style="font-size: 0.75rem; color: var(--text-muted);">Coat: ${h.coat.name} | Hidden: ${h.hiddenCoat.name} | Stars: ${h.stars}★</span>
+                            </div>
                         </div>
                         <div style="font-size: 0.85rem; font-weight: bold; color: ${index === gameData.activeHorseIndex ? 'var(--accent-gold)' : 'var(--text-muted)'};">
                             ${index === gameData.activeHorseIndex ? '✓ Active Slot' : 'Select'}
@@ -255,16 +290,14 @@
             let dam = gameData.horses[mIndex];
             gameData.diamonds -= cost;
 
-            // Gather possible coat traits from parents (Primary & Hidden genes pool)
             let parentCoatPool = [sire.coat, sire.hiddenCoat, dam.coat, dam.hiddenCoat];
             let uniquePool = [...new Set(parentCoatPool)];
 
             let selectedCoat, selectedHidden;
 
             if (useExoticBoost) {
-                // Exotic boost gives a chance at rare/exotic tier, with odds of failure
                 let roll = Math.random();
-                if (roll < 0.40) { // 40% success for exotic coat
+                if (roll < 0.40) {
                     let exotics = coatLibrary.filter(c => c.tier === 'exotic');
                     selectedCoat = exotics[Math.floor(Math.random() * exotics.length)];
                 } else {
@@ -272,7 +305,6 @@
                     alert("Exotic coat attempt failed to mutate, inherited standard parental traits instead!");
                 }
             } else {
-                // Standard genetic inheritance from parent pools
                 selectedCoat = uniquePool[Math.floor(Math.random() * uniquePool.length)];
             }
 
@@ -327,8 +359,6 @@
 
                 let frameIndex = Math.floor(frameStep / 4) % frameFiles.length;
                 document.getElementById('player-img').src = frameFiles[frameIndex];
-                document.getElementById('ai1-img').src = frameFiles[frameIndex];
-                document.getElementById('ai2-img').src = frameFiles[frameIndex];
 
                 if (playerPos >= trackWidth || ai1Pos >= trackWidth || ai2Pos >= trackWidth) {
                     if (currentLap < 3) {
@@ -336,24 +366,4 @@
                         lapIndicator.innerText = `Lap ${currentLap} / 3`;
                         playerPos = 0; ai1Pos = 0; ai2Pos = 0;
                     } else {
-                        clearInterval(raceInterval);
-                        let prizeGold = 350 + (active.stars * 100);
-                        let prizeGems = 2 + Math.floor(active.stars / 2);
-                        gameData.gold += prizeGold;
-                        gameData.diamonds += prizeGems;
-
-                        alert(`🏆 Race Won! You earned 🪙 ${prizeGold} Gold and 💎 ${prizeGems} Diamonds!`);
-                        playerElem.style.left = '0px';
-                        ai1Elem.style.left = '0px';
-                        ai2Elem.style.left = '0px';
-                        lapIndicator.innerText = `Lap 1 / 3`;
-                        updateUI();
-                    }
-                }
-            }, 30);
-        }
-
-        updateUI();
-    </script>
-</body>
-</html>
+     
