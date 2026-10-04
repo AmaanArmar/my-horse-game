@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Horse Racing & Breeding Game</title>
     <style>
         :root {
@@ -21,6 +21,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -115,25 +116,28 @@
             margin-bottom: 15px;
         }
 
-        /* Fixed container clipping to prevent color bleeding past borders */
+        /* Using CSS Mask so color only fills the horse silhouette and never bleeds out */
         .horse-wrapper {
             position: relative;
             display: inline-block;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 8px;
             width: 110px;
             height: 110px;
-            background-color: var(--horse-color, #d37b3f);
-            isolation: isolate;
+            margin-bottom: 8px;
+            background-color: transparent;
         }
 
-        .horse-wrapper img {
+        .horse-stencil {
             width: 100%;
             height: 100%;
-            object-fit: contain;
-            display: block;
-            mix-blend-mode: multiply;
+            background-color: var(--horse-color, #d37b3f);
+            -webkit-mask-image: var(--horse-img);
+            mask-image: var(--horse-img);
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
         }
 
         .horse-info h2 {
@@ -207,22 +211,21 @@
             color: #000;
             border: none;
             border-radius: 10px;
-            padding: 10px;
+            padding: 12px;
             font-weight: 700;
             font-size: 0.9rem;
             cursor: pointer;
-            transition: opacity 0.2s ease;
             box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
             margin-bottom: 8px;
         }
 
-        .btn-primary:hover {
-            opacity: 0.9;
+        .btn-primary:active {
+            transform: scale(0.98);
         }
 
         select, input {
             width: 100%;
-            padding: 8px 10px;
+            padding: 10px;
             background: #121215;
             border: 1px solid var(--border-color);
             border-radius: 8px;
@@ -277,21 +280,6 @@
             left: 0px;
             width: 38px;
             height: 38px;
-            border-radius: 6px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--horse-color, #d37b3f);
-            isolation: isolate;
-        }
-
-        .racer-horse img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: block;
-            mix-blend-mode: multiply;
         }
 
         .training-row {
@@ -300,7 +288,7 @@
             align-items: center;
             background: #121215;
             border: 1px solid var(--border-color);
-            padding: 8px 12px;
+            padding: 10px 12px;
             border-radius: 8px;
             margin-bottom: 8px;
         }
@@ -320,17 +308,17 @@
 
         <!-- Navigation Tabs -->
         <div class="nav-tabs">
-            <button class="nav-tab active" onclick="switchTab('stable', this)">Stable</button>
-            <button class="nav-tab" onclick="switchTab('training', this)">Training</button>
-            <button class="nav-tab" onclick="switchTab('race', this)">Race Track</button>
-            <button class="nav-tab" onclick="switchTab('breeding', this)">Breeding</button>
+            <button class="nav-tab active" id="tab-btn-stable" onclick="switchTab('stable')">Stable</button>
+            <button class="nav-tab" id="tab-btn-training" onclick="switchTab('training')">Training</button>
+            <button class="nav-tab" id="tab-btn-race" onclick="switchTab('race')">Race Track</button>
+            <button class="nav-tab" id="tab-btn-breeding" onclick="switchTab('breeding')">Breeding</button>
         </div>
 
         <!-- TAB 1: STABLE -->
         <div id="stable-tab" class="tab-pane active">
             <div class="horse-showcase">
                 <div id="active-horse-wrapper" class="horse-wrapper">
-                    <img id="active-horse-img" src="3903_2.png" alt="Horse Sprite" onerror="this.style.display='none'">
+                    <div id="active-horse-stencil" class="horse-stencil"></div>
                 </div>
                 <div class="horse-info">
                     <span class="grade-badge" id="active-stars">Grade 1★</span>
@@ -357,9 +345,9 @@
                 </div>
             </div>
 
-            <button class="btn-primary" onclick="careForHorse('feed')">Feed Horse (🪙 50)</button>
-            <button class="btn-primary" onclick="careForHorse('rest')">Rest Horse (🪙 100)</button>
-            <button class="btn-primary" onclick="buyRandomHorse()" style="background: linear-gradient(135deg, #38bdf8, #0ea5e9); color: #000;">Buy Stable Slot (🪙 500)</button>
+            <button class="btn-primary" id="btn-feed" onclick="careForHorse('feed')">Feed Horse (🪙 50)</button>
+            <button class="btn-primary" id="btn-rest" onclick="careForHorse('rest')">Rest Horse (🪙 100)</button>
+            <button class="btn-primary" id="btn-buy" onclick="buyRandomHorse()" style="background: linear-gradient(135deg, #38bdf8, #0ea5e9); color: #000;">Buy Stable Slot (🪙 500)</button>
 
             <h3 style="font-size: 0.9rem; margin: 15px 0 8px 0; color: var(--text-muted);">Stable Inventory (<span id="slot-count">2</span>)</h3>
             <div id="stable-inventory" class="stable-inventory"></div>
@@ -374,31 +362,31 @@
                 <div>
                     <strong>Speed</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);" id="stat-speed-val">20 / 100</span>
                 </div>
-                <button onclick="trainAspect('speed')" style="padding: 6px 12px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
+                <button onclick="trainAspect('speed')" style="padding: 8px 14px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
             </div>
             <div class="training-row">
                 <div>
                     <strong>Stamina</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);" id="stat-stamina-val">20 / 100</span>
                 </div>
-                <button onclick="trainAspect('stamina')" style="padding: 6px 12px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
+                <button onclick="trainAspect('stamina')" style="padding: 8px 14px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
             </div>
             <div class="training-row">
                 <div>
                     <strong>Agility</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);" id="stat-agility-val">20 / 100</span>
                 </div>
-                <button onclick="trainAspect('agility')" style="padding: 6px 12px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
+                <button onclick="trainAspect('agility')" style="padding: 8px 14px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
             </div>
             <div class="training-row">
                 <div>
                     <strong>Acceleration</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);" id="stat-accel-val">20 / 100</span>
                 </div>
-                <button onclick="trainAspect('accel')" style="padding: 6px 12px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
+                <button onclick="trainAspect('accel')" style="padding: 8px 14px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
             </div>
             <div class="training-row">
                 <div>
                     <strong>Spirit</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);" id="stat-spirit-val">20 / 100</span>
                 </div>
-                <button onclick="trainAspect('spirit')" style="padding: 6px 12px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
+                <button onclick="trainAspect('spirit')" style="padding: 8px 14px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
             </div>
         </div>
 
@@ -407,19 +395,13 @@
             <div id="lap-indicator" style="font-size: 0.85rem; font-weight: 700; color: var(--accent-gold); margin-bottom: 8px;">Lap 1 / 3</div>
             <div id="race-track" class="race-track-container">
                 <div class="racer-lane">
-                    <div id="player-racer" class="racer-horse">
-                        <img id="player-racer-img" src="3903_2.png" alt="Racer" onerror="this.style.display='none'">
-                    </div>
+                    <div id="player-racer" class="racer-horse horse-stencil"></div>
                 </div>
                 <div class="racer-lane">
-                    <div id="ai1-racer" class="racer-horse" style="--horse-color: #788691;">
-                        <img src="3903_2.png" alt="AI 1" onerror="this.style.display='none'">
-                    </div>
+                    <div id="ai1-racer" class="racer-horse horse-stencil" style="--horse-color: #788691; --horse-img: url('3903_2.png');"></div>
                 </div>
                 <div class="racer-lane" style="border-bottom: none;">
-                    <div id="ai2-racer" class="racer-horse" style="--horse-color: #5c3a21;">
-                        <img src="3903_2.png" alt="AI 2" onerror="this.style.display='none'">
-                    </div>
+                    <div id="ai2-racer" class="racer-horse horse-stencil" style="--horse-color: #5c3a21; --horse-img: url('3903_2.png');"></div>
                 </div>
             </div>
             <button class="btn-primary" onclick="startLiveRace()">Start Live Race!</button>
@@ -499,15 +481,23 @@
                 document.getElementById('stat-accel-val').innerText = `${active.stats.accel} / ${maxCap}`;
                 document.getElementById('stat-spirit-val').innerText = `${active.stats.spirit} / ${maxCap}`;
 
-                let activeBox = document.getElementById('active-horse-wrapper');
-                if (activeBox) activeBox.style.setProperty('--horse-color', active.coat.hex);
+                let activeStencil = document.getElementById('active-horse-stencil');
+                if (activeStencil) {
+                    activeStencil.style.setProperty('--horse-color', active.coat.hex);
+                    activeStencil.style.setProperty('--horse-img', `url('${frameFiles[0]}')`);
+                }
 
                 let playerRacer = document.getElementById('player-racer');
-                if (playerRacer) playerRacer.style.setProperty('--horse-color', active.coat.hex);
+                if (playerRacer) {
+                    playerRacer.style.setProperty('--horse-color', active.coat.hex);
+                    playerRacer.style.setProperty('--horse-img', `url('${frameFiles[0]}')`);
+                }
 
                 let inventoryHtml = "";
                 gameData.horses.forEach((h, index) => {
                     inventoryHtml += `
                         <div class="stable-horse-item" onclick="selectActiveHorse(${index})" style="border-left: 4px solid ${h.coat.hex};">
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <div class="horse-wrapper" style="width: 36px; height: 36px; --horse-color: ${h.coat.hex};
+                                <div style="width: 32px; height: 32px;">
+                                    <div class="horse-stencil" style="width:100%; height:100%; --horse-color: ${h.coat.hex}; --horse-img: url('3903_2.png');"></div>
+                            
