@@ -31,7 +31,6 @@
         button:hover { background: #52525b; }
         .racetrack { position: relative; height: 300px; background: #22c55e; border-radius: 8px; overflow: hidden; margin-top: 15px; border: 4px solid #15803d; }
         .racer { position: absolute; left: 0px; width: 80px; height: 90px; display: flex; align-items: center; }
-        .racer img { width: 75px; height: auto; image-rendering: pixelated; }
         .lane { border-bottom: 2px dashed rgba(255,255,255,0.4); height: 100px; position: relative; display: flex; align-items: center; }
         .stable-horse-item { background: #27272a; padding: 12px; border-radius: 6px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--accent-gold); cursor: pointer; }
         .grade-badge { background: var(--accent-gold); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
@@ -45,6 +44,7 @@
             align-items: center;
             justify-content: center;
             position: relative;
+            flex-shrink: 0;
         }
         .horse-sprite-box img {
             width: 75px;
@@ -56,21 +56,24 @@
 </head>
 <body>
     <div class="container">
+        
+        <!-- Header Bar -->
         <div class="header-bar">
-            <div><h2 style="margin:0;">🐎 Advanced Horse Breeding & Race Studio</h2></div>
+            <div><h2 style="margin:0;">🐎 Horse Racing & Breeding Studio</h2></div>
             <div>
                 <span id="gold-display" style="margin-right: 15px; font-weight: bold;">🪙 450</span>
                 <span id="diamond-display" style="font-weight: bold;">💎 65</span>
             </div>
         </div>
 
+        <!-- Navigation Tabs -->
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="switchTab('stable', this)">Stable</button>
             <button class="nav-tab" onclick="switchTab('race', this)">Race Track</button>
             <button class="nav-tab" onclick="switchTab('breeding', this)">Breeding Studio</button>
         </div>
 
-        <!-- Stable Tab -->
+        <!-- TAB 1: STABLE -->
         <div id="stable-tab" class="tab-pane active">
             <h3>Active Horse Details</h3>
             <div style="display: flex; gap: 20px; align-items: center; background: #27272a; padding: 15px; border-radius: 8px;">
@@ -80,40 +83,42 @@
                 <div>
                     <h2 id="horse-name-display" style="margin: 0 0 5px 0;">Misty</h2>
                     <div id="horse-meta-display" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 5px;">Mare | Arabian</div>
-                    <div style="margin-bottom: 5px;"><span class="grade-badge" id="active-stars">Grade 1★</span> | Coat: <strong id="active-coat-name" style="color: var(--accent-gold);">Classic Brown</strong></div>
+                    <div style="margin-bottom: 5px;"><span class="grade-badge" id="active-stars">Grade 1★</span> | Coat: <strong id="active-coat-name" style="color: var(--accent-gold);">Classic Chestnut</strong></div>
                     <div style="font-size: 0.85rem; color: var(--text-muted);">Hidden Trait: <span id="active-hidden-coat">Rich Brown</span></div>
                     <div style="margin-top: 5px;">Energy: <span id="energy-display">100</span> / 100</div>
                 </div>
             </div>
+            
             <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
                 <button onclick="careForHorse('feed')">Feed (🪙 50)</button>
                 <button onclick="careForHorse('rest')">Rest (🪙 100)</button>
                 <button onclick="buyRandomHorse()" style="background: var(--accent-gold); color: #000;">Buy Horse Slot (🪙 500)</button>
             </div>
+
             <h3 style="margin-top: 25px;">Stable Inventory (<span id="slot-count">2</span> Horses)</h3>
-            <div id="stable-inventory" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            <div id="stable-inventory"></div>
         </div>
 
-        <!-- Race Tab -->
+        <!-- TAB 2: RACE TRACK -->
         <div id="race-tab" class="tab-pane">
             <h3>Live Race Track</h3>
             <div id="lap-indicator" style="font-weight: bold; margin-bottom: 10px; color: var(--accent-gold);">Lap 1 / 3</div>
             <div id="race-track" class="racetrack">
-                <div class="lane" id="lane-player">
+                <div class="lane">
                     <div id="player-racer" class="racer" style="top: 5px;">
                         <div id="player-sprite-box" class="horse-sprite-box" style="width: 75px; height: 75px;">
                             <img id="player-img" src="3903_2.png" alt="Player">
                         </div>
                     </div>
                 </div>
-                <div class="lane" id="lane-ai1">
+                <div class="lane">
                     <div id="ai1-racer" class="racer" style="top: 5px;">
                         <div class="horse-sprite-box" style="width: 75px; height: 75px; background-color: #64748b;">
                             <img id="ai1-img" src="3903_2.png" alt="AI 1">
                         </div>
                     </div>
                 </div>
-                <div class="lane" id="lane-ai2" style="border-bottom: none;">
+                <div class="lane" style="border-bottom: none;">
                     <div id="ai2-racer" class="racer" style="top: 5px;">
                         <div class="horse-sprite-box" style="width: 75px; height: 75px; background-color: #ad754c;">
                             <img id="ai2-img" src="3903_2.png" alt="AI 2">
@@ -124,19 +129,26 @@
             <button onclick="startLiveRace()" style="margin-top: 15px; padding: 12px 24px; background: var(--accent-gold); color: #000; font-size: 1rem;">Start Live Race!</button>
         </div>
 
-        <!-- Breeding Tab -->
+        <!-- TAB 3: BREEDING STUDIO -->
         <div id="breeding-tab" class="tab-pane">
             <h3>Genetics & Breeding Studio</h3>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Breed a stallion and mare. Offspring inherit coat traits and hidden genes from parents!</p>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Breed a stallion and mare to pass down coat colors and traits!</p>
             <div style="display: flex; gap: 20px; margin-bottom: 15px; flex-wrap: wrap;">
-                <div><label>Stallion:</label><br><select id="stallion-select" style="padding: 8px; width: 220px; margin-top: 5px; background: #27272a; color: #fff; border-radius: 4px;"></select></div>
-                <div><label>Mare:</label><br><select id="mare-select" style="padding: 8px; width: 220px; margin-top: 5px; background: #27272a; color: #fff; border-radius: 4px;"></select></div>
+                <div>
+                    <label>Stallion:</label><br>
+                    <select id="stallion-select" style="padding: 8px; width: 220px; margin-top: 5px; background: #27272a; color: #fff; border-radius: 4px;"></select>
+                </div>
+                <div>
+                    <label>Mare:</label><br>
+                    <select id="mare-select" style="padding: 8px; width: 220px; margin-top: 5px; background: #27272a; color: #fff; border-radius: 4px;"></select>
+                </div>
             </div>
             <div style="margin-bottom: 15px;">
-                <label style="cursor: pointer;"><input type="checkbox" id="exotic-boost" style="margin-right: 8px;"> Enable Exotic Coat Boost (Cost: 💎 50 Gems | 10x Price, High Risk/Reward)</label>
+                <label style="cursor: pointer;"><input type="checkbox" id="exotic-boost" style="margin-right: 8px;"> Enable Exotic Coat Boost (Cost: 💎 50 Gems)</label>
             </div>
             <button onclick="breedHorses()" style="padding: 10px 20px; background: var(--accent-gem); color: #000; font-weight: bold;">Breed Foal (Base: 💎 5 Gems)</button>
         </div>
+
     </div>
 
     <script>
@@ -145,13 +157,8 @@
             { name: "Rich Brown", hex: "#451a03", tier: "common" },
             { name: "Classic Chestnut", hex: "#ad754c", tier: "common" },
             { name: "Copper Chestnut", hex: "#9a3412", tier: "common" },
-            { name: "Classic Bay", hex: "#5c1d1d", tier: "common" },
-            { name: "Blood Bay", hex: "#7c2d12", tier: "common" },
             { name: "Gray", hex: "#64748b", tier: "dilution" },
-            { name: "Cream Dilution", hex: "#d1af97", tier: "dilution" },
-            { name: "Champagne Dilution", hex: "#c29b61", tier: "dilution" },
             { name: "Midnight Black", hex: "#1c1917", tier: "exotic" },
-            { name: "Classic Black", hex: "#111111", tier: "exotic" },
             { name: "Classic White", hex: "#f8fafc", tier: "exotic" }
         ];
 
@@ -161,7 +168,7 @@
             activeHorseIndex: 0,
             horses: [
                 { name: "Misty", gender: "Mare", breed: "Arabian", stars: 1, energy: 100, speed: 12, coat: coatLibrary[2], hiddenCoat: coatLibrary[1] },
-                { name: "Shadow", gender: "Stallion", breed: "Thoroughbred", stars: 1, energy: 100, speed: 13, coat: coatLibrary[9], hiddenCoat: coatLibrary[6] }
+                { name: "Shadow", gender: "Stallion", breed: "Thoroughbred", stars: 1, energy: 100, speed: 13, coat: coatLibrary[5], hiddenCoat: coatLibrary[4] }
             ]
         };
 
@@ -169,26 +176,20 @@
 
         function updateUI() {
             try {
-                const getEl = (id) => document.getElementById(id);
-                
-                if (getEl('gold-display')) getEl('gold-display').innerText = `🪙 ${gameData.gold}`;
-                if (getEl('diamond-display')) getEl('diamond-display').innerText = `💎 ${gameData.diamonds}`;
-                if (getEl('slot-count')) getEl('slot-count').innerText = gameData.horses.length;
+                document.getElementById('gold-display').innerText = `🪙 ${gameData.gold}`;
+                document.getElementById('diamond-display').innerText = `💎 ${gameData.diamonds}`;
+                document.getElementById('slot-count').innerText = gameData.horses.length;
 
                 let active = gameData.horses[gameData.activeHorseIndex] || gameData.horses[0];
-                
-                if (getEl('horse-name-display')) getEl('horse-name-display').innerText = active.name;
-                if (getEl('horse-meta-display')) getEl('horse-meta-display').innerHTML = `${active.gender} | ${active.breed}`;
-                if (getEl('active-stars')) getEl('active-stars').innerText = `Grade ${active.stars}★`;
-                if (getEl('active-coat-name')) getEl('active-coat-name').innerText = active.coat.name;
-                if (getEl('active-hidden-coat')) getEl('active-hidden-coat').innerText = active.hiddenCoat.name;
-                if (getEl('energy-display')) getEl('energy-display').innerText = active.energy;
+                document.getElementById('horse-name-display').innerText = active.name;
+                document.getElementById('horse-meta-display').innerHTML = `${active.gender} | ${active.breed}`;
+                document.getElementById('active-stars').innerText = `Grade ${active.stars}★`;
+                document.getElementById('active-coat-name').innerText = active.coat.name;
+                document.getElementById('active-hidden-coat').innerText = active.hiddenCoat.name;
+                document.getElementById('energy-display').innerText = active.energy;
 
-                let activeContainer = getEl('active-sprite-container');
-                if (activeContainer) activeContainer.style.backgroundColor = active.coat.hex;
-
-                let playerContainer = getEl('player-sprite-box');
-                if (playerContainer) playerContainer.style.backgroundColor = active.coat.hex;
+                document.getElementById('active-sprite-container').style.backgroundColor = active.coat.hex;
+                document.getElementById('player-sprite-box').style.backgroundColor = active.coat.hex;
 
                 let inventoryHtml = "";
                 gameData.horses.forEach((h, index) => {
@@ -200,40 +201,40 @@
                                 </div>
                                 <div>
                                     <strong>${h.name}</strong> (${h.gender}, ${h.breed})<br>
-                                    <span style="font-size: 0.75rem; color: var(--text-muted);">Coat: ${h.coat.name} | Hidden: ${h.hiddenCoat.name} | Stars: ${h.stars}★</span>
+                                    <span style="font-size: 0.75rem; color: var(--text-muted);">Coat: ${h.coat.name} | Stars: ${h.stars}★</span>
                                 </div>
                             </div>
                             <div style="font-size: 0.85rem; font-weight: bold; color: ${index === gameData.activeHorseIndex ? 'var(--accent-gold)' : 'var(--text-muted)'};">
-                                ${index === gameData.activeHorseIndex ? '✓ Active Slot' : 'Select'}
+                                ${index === gameData.activeHorseIndex ? '✓ Active' : 'Select'}
                             </div>
                         </div>`;
                 });
-                if (getEl('stable-inventory')) getEl('stable-inventory').innerHTML = inventoryHtml;
+                document.getElementById('stable-inventory').innerHTML = inventoryHtml;
 
-                let stallionSelect = getEl('stallion-select');
-                let mareSelect = getEl('mare-select');
+                let stallionSelect = document.getElementById('stallion-select');
+                let mareSelect = document.getElementById('mare-select');
                 if (stallionSelect && mareSelect) {
                     stallionSelect.innerHTML = "";
                     mareSelect.innerHTML = "";
                     let stallions = gameData.horses.filter(h => h.gender === "Stallion");
                     let mares = gameData.horses.filter(h => h.gender === "Mare");
 
-                    if (stallions.length === 0) stallionSelect.innerHTML = `<option value="">-- None Available --</option>`;
-                    else stallions.forEach(s => stallionSelect.innerHTML += `<option value="${gameData.horses.indexOf(s)}">${s.name} (${s.coat.name}, ${s.stars}★)</option>`);
+                    if (stallions.length === 0) stallionSelect.innerHTML = `<option value="">-- None --</option>`;
+                    else stallions.forEach(s => stallionSelect.innerHTML += `<option value="${gameData.horses.indexOf(s)}">${s.name} (${s.coat.name})</option>`);
 
-                    if (mares.length === 0) mareSelect.innerHTML = `<option value="">-- None Available --</option>`;
-                    else mares.forEach(m => mareSelect.innerHTML += `<option value="${gameData.horses.indexOf(m)}">${m.name} (${m.coat.name}, ${m.stars}★)</option>`);
+                    if (mares.length === 0) mareSelect.innerHTML = `<option value="">-- None --</option>`;
+                    else mares.forEach(m => mareSelect.innerHTML += `<option value="${gameData.horses.indexOf(m)}">${m.name} (${m.coat.name})</option>`);
                 }
-            } catch (err) {
-                console.error("UI Update Error: ", err);
+            } catch (e) {
+                console.error("UI Error:", e);
             }
         }
 
         function switchTab(tabId, btn) {
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-            let targetTab = document.getElementById(tabId + '-tab');
-            if (targetTab) targetTab.classList.add('active');
+            let target = document.getElementById(tabId + '-tab');
+            if (target) target.classList.add('active');
             if (btn) btn.classList.add('active');
         }
 
@@ -257,110 +258,91 @@
         }
 
         function buyRandomHorse() {
-            if (gameData.gold < 500) { alert("Need 🪙 500 Gold to unlock a slot!"); return; }
+            if (gameData.gold < 500) { alert("Need 🪙 500 Gold!"); return; }
             gameData.gold -= 500;
-            let names = ["Thunder", "Blaze", "Storm", "Ghost", "Apollo", "Titan"];
-            let randomCoat = coatLibrary[Math.floor(Math.random() * coatLibrary.length)];
-            let randomHidden = coatLibrary[Math.floor(Math.random() * coatLibrary.length)];
-            
+            let names = ["Thunder", "Blaze", "Storm", "Ghost", "Apollo"];
             let newHorse = {
                 name: names[Math.floor(Math.random() * names.length)],
                 gender: Math.random() < 0.5 ? "Stallion" : "Mare",
                 breed: "Thoroughbred",
                 stars: 1,
                 energy: 100,
-                speed: 12 + Math.floor(Math.random() * 4),
-                coat: randomCoat,
-                hiddenCoat: randomHidden
+                speed: 13,
+                coat: coatLibrary[Math.floor(Math.random() * coatLibrary.length)],
+                hiddenCoat: coatLibrary[Math.floor(Math.random() * coatLibrary.length)]
             };
             gameData.horses.push(newHorse);
             gameData.activeHorseIndex = gameData.horses.length - 1;
             updateUI();
-            alert(`New slot unlocked! ${newHorse.name} (${newHorse.coat.name}) joined your stable.`);
+            alert(`New horse ${newHorse.name} joined!`);
         }
 
         function breedHorses() {
-            let exoticCheckbox = document.getElementById('exotic-boost');
-            let useExoticBoost = exoticCheckbox ? exoticCheckbox.checked : false;
-            let cost = useExoticBoost ? 50 : 5;
-
-            if (gameData.diamonds < cost) { 
-                alert(`Breeding requires 💎 ${cost} Diamonds!`); 
-                return; 
-            }
-
             let sSelect = document.getElementById('stallion-select');
             let mSelect = document.getElementById('mare-select');
-            if (!sSelect || !mSelect || sSelect.value === "" || mSelect.value === "") { 
-                alert("Select one Stallion and one Mare!"); 
-                return; 
-            }
+            if (!sSelect.value || !mSelect.value) { alert("Select a Stallion and Mare!"); return; }
+            
+            if (gameData.diamonds < 5) { alert("Need 💎 5 Diamonds!"); return; }
+            gameData.diamonds -= 5;
 
             let sire = gameData.horses[sSelect.value];
             let dam = gameData.horses[mSelect.value];
-            gameData.diamonds -= cost;
-
-            let parentCoatPool = [sire.coat, sire.hiddenCoat, dam.coat, dam.hiddenCoat];
-            let uniquePool = [...new Set(parentCoatPool)];
-
-            let selectedCoat, selectedHidden;
-
-            if (useExoticBoost) {
-                let roll = Math.random();
-                if (roll < 0.40) {
-                    let exotics = coatLibrary.filter(c => c.tier === 'exotic');
-                    selectedCoat = exotics[Math.floor(Math.random() * exotics.length)];
-                } else {
-                    selectedCoat = uniquePool[Math.floor(Math.random() * uniquePool.length)];
-                    alert("Exotic coat attempt failed to mutate, inherited standard parental traits instead!");
-                }
-            } else {
-                selectedCoat = uniquePool[Math.floor(Math.random() * uniquePool.length)];
-            }
-
-            selectedHidden = uniquePool[Math.floor(Math.random() * uniquePool.length)];
-
-            let newStars = Math.max(sire.stars, dam.stars) + (Math.random() < 0.3 ? 1 : 0);
-            let foalNames = ["Nova", "Eclipse", "Comet", "Spirit", "Miracle", "Legacy", "Golden Heir"];
-            
             let newFoal = {
-                name: foalNames[Math.floor(Math.random() * foalNames.length)],
+                name: "Foal",
                 gender: Math.random() < 0.5 ? "Stallion" : "Mare",
                 breed: sire.breed,
-                stars: newStars,
+                stars: Math.max(sire.stars, dam.stars),
                 energy: 100,
-                speed: Math.round((sire.speed + dam.speed) / 2) + 2,
-                coat: selectedCoat,
-                hiddenCoat: selectedHidden
+                speed: 14,
+                coat: sire.coat,
+                hiddenCoat: dam.coat
             };
-
             gameData.horses.push(newFoal);
             gameData.activeHorseIndex = gameData.horses.length - 1;
             updateUI();
-            alert(`🎉 Foal ${newFoal.name} born! Coat: ${newFoal.coat.name} (Grade ${newStars}★)`);
+            alert("New foal born!");
         }
 
         let raceInterval = null;
         function startLiveRace() {
             let active = gameData.horses[gameData.activeHorseIndex];
-            if (active.energy < 20) { alert("Horse is too tired! Feed or rest first."); return; }
+            if (active.energy < 20) { alert("Horse is too tired!"); return; }
             active.energy -= 20;
 
             let playerElem = document.getElementById('player-racer');
-            let ai1Elem = document.getElementById('ai1-racer');
-            let ai2Elem = document.getElementById('ai2-racer');
-            let lapIndicator = document.getElementById('lap-indicator');
-            let track = document.getElementById('race-track');
-            
-            if (!playerElem || !track) return;
-            let trackWidth = track.offsetWidth - 80;
-
-            let playerPos = 0, ai1Pos = 0, ai2Pos = 0, currentLap = 1;
-            let frameStep = 0;
+            let trackWidth = document.getElementById('race-track').offsetWidth - 80;
+            let playerPos = 0, currentLap = 1, frameStep = 0;
 
             if (raceInterval) clearInterval(raceInterval);
 
             raceInterval = setInterval(() => {
                 frameStep++;
-                playerPos += 2.0 + (active.speed * 0.05) + (Math.random() * 0.8);
-                ai1Pos += 2.1 + (Math.random()
+                playerPos += 3;
+                playerElem.style.left = playerPos + 'px';
+
+                let fIdx = Math.floor(frameStep / 4) % frameFiles.length;
+                let pImg = document.getElementById('player-img');
+                if (pImg) pImg.src = frameFiles[fIdx];
+
+                if (playerPos >= trackWidth) {
+                    if (currentLap < 3) {
+                        currentLap++;
+                        document.getElementById('lap-indicator').innerText = `Lap ${currentLap} / 3`;
+                        playerPos = 0;
+                    } else {
+                        clearInterval(raceInterval);
+                        gameData.gold += 400;
+                        gameData.diamonds += 3;
+                        alert("Race Won!");
+                        playerElem.style.left = '0px';
+                        document.getElementById('lap-indicator').innerText = `Lap 1 / 3`;
+                        updateUI();
+                    }
+                }
+            }, 30);
+        }
+
+        window.onload = updateUI;
+    </script>
+</body>
+</html>
