@@ -36,6 +36,11 @@ function updateUI() {
         document.getElementById('diamond-display').innerText = `💎 ${gameData.diamonds}`;
         document.getElementById('slot-count').innerText = gameData.horses.length;
 
+        // Safety check if active horse index went out of bounds after selling
+        if (gameData.activeHorseIndex >= gameData.horses.length) {
+            gameData.activeHorseIndex = 0;
+        }
+
         let active = gameData.horses[gameData.activeHorseIndex] || gameData.horses[0];
         document.getElementById('horse-name-display').innerText = active.name;
         document.getElementById('horse-meta-display').innerText = `${active.gender} | ${active.breed}`;
@@ -138,6 +143,27 @@ function careForHorse(type) {
         active.energy = 100;
     }
     updateUI();
+}
+
+function sellActiveHorse() {
+    if (gameData.horses.length <= 1) {
+        alert("You cannot sell or release your only horse!");
+        return;
+    }
+
+    let active = gameData.horses[gameData.activeHorseIndex];
+    // Calculate rewards based on star tier and training progress
+    let goldReward = active.stars * 150 + (active.stats.speed * 3);
+    let diamondReward = active.stars >= 3 ? active.stars : 1;
+
+    if (confirm(`Do you want to sell ${active.name} (${active.stars}★) for 🪙 ${goldReward} Gold and 💎 ${diamondReward} Diamonds?`)) {
+        gameData.gold += goldReward;
+        gameData.diamonds += diamondReward;
+        gameData.horses.splice(gameData.activeHorseIndex, 1);
+        gameData.activeHorseIndex = 0;
+        updateUI();
+        alert(`Successfully sold ${active.name}! Received 🪙 ${goldReward} and 💎 ${diamondReward}.`);
+    }
 }
 
 function trainAspect(aspect) {
@@ -249,6 +275,7 @@ function startLiveRace() {
                 gameData.gold += 400;
                 gameData.diamonds += 3;
                 alert("Race Completed! Rewards added.");
+                playerPos = 0; ai1Pos = 0; ai2Pos = 0;
                 playerElem.style.left = '0px';
                 if (ai1Elem) ai1Elem.style.left = '0px';
                 if (ai2Elem) ai2Elem.style.left = '0px';
