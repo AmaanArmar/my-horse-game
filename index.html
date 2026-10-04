@@ -110,14 +110,14 @@
                 <div class="lane" id="lane-ai1">
                     <div id="ai1-racer" class="racer" style="top: 5px;">
                         <div class="horse-sprite-box" style="width: 75px; height: 75px; background-color: #64748b;">
-                            <img src="3903_2.png" alt="AI 1">
+                            <img id="ai1-img" src="3903_2.png" alt="AI 1">
                         </div>
                     </div>
                 </div>
                 <div class="lane" id="lane-ai2" style="border-bottom: none;">
                     <div id="ai2-racer" class="racer" style="top: 5px;">
                         <div class="horse-sprite-box" style="width: 75px; height: 75px; background-color: #ad754c;">
-                            <img src="3903_2.png" alt="AI 2">
+                            <img id="ai2-img" src="3903_2.png" alt="AI 2">
                         </div>
                     </div>
                 </div>
@@ -181,12 +181,11 @@
             document.getElementById('active-hidden-coat').innerText = active.hiddenCoat.name;
             document.getElementById('energy-display').innerText = active.energy;
 
-            // Apply dynamic coat color container background
             let activeContainer = document.getElementById('active-sprite-container');
-            activeContainer.style.backgroundColor = active.coat.hex;
+            if (activeContainer) activeContainer.style.backgroundColor = active.coat.hex;
 
             let playerContainer = document.getElementById('player-sprite-box');
-            playerContainer.style.backgroundColor = active.coat.hex;
+            if (playerContainer) playerContainer.style.backgroundColor = active.coat.hex;
 
             let inventoryHtml = "";
             gameData.horses.forEach((h, index) => {
@@ -358,12 +357,12 @@
                 ai2Elem.style.left = ai2Pos + 'px';
 
                 let frameIndex = Math.floor(frameStep / 4) % frameFiles.length;
-                document.getElementById('player-img').src = frameFiles[frameIndex];
+                let pImg = document.getElementById('player-img');
+                let a1Img = document.getElementById('ai1-img');
+                let a2Img = document.getElementById('ai2-img');
 
-                if (playerPos >= trackWidth || ai1Pos >= trackWidth || ai2Pos >= trackWidth) {
-                    if (currentLap < 3) {
-                        currentLap++;
-                        lapIndicator.innerText = `Lap ${currentLap} / 3`;
-                        playerPos = 0; ai1Pos = 0; ai2Pos = 0;
-                    } else {
-     
+                if (pImg) pImg.src = frameFiles[frameIndex];
+                if (a1Img) a1Img.src = frameFiles[frameIndex];
+                if (a2Img) a2Img.src = frameFiles[frameIndex];
+
+                if (playerPos >= trackWid
