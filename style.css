@@ -38,7 +38,6 @@ body {
     flex-direction: column;
 }
 
-/* Header & Currencies */
 .game-header {
     background: #121215;
     padding: 15px 20px;
@@ -61,7 +60,6 @@ body {
     color: var(--text-main);
 }
 
-/* Navigation Tabs */
 .nav-tabs {
     display: flex;
     background: #121215;
@@ -89,7 +87,6 @@ body {
     background: rgba(245, 158, 11, 0.05);
 }
 
-/* Tab Content Areas */
 .tab-pane {
     display: none;
     padding: 15px;
@@ -102,7 +99,6 @@ body {
     display: block;
 }
 
-/* Horse Showcase Card */
 .horse-showcase {
     background: #121215;
     border: 1px solid var(--border-color);
@@ -139,7 +135,6 @@ body {
     font-size: 0.8rem;
 }
 
-/* Stats Display Grid */
 .stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -168,7 +163,6 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* Stable Inventory */
 .stable-inventory {
     display: flex;
     flex-direction: column;
@@ -194,7 +188,6 @@ body {
     border-color: var(--accent-gold);
 }
 
-/* Buttons & Inputs */
 .btn-primary {
     width: 100%;
     background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-hover));
@@ -224,7 +217,6 @@ select, input {
     font-size: 0.85rem;
 }
 
-/* Grade & Star Badge Styling */
 .grade-badge {
     background: linear-gradient(135deg, #f59e0b, #d97706);
     color: #000;
@@ -246,7 +238,6 @@ select, input {
     border: 1px solid var(--border-color);
 }
 
-/* Race Track UI - Compact 3-Lane Setup */
 .race-track-container {
     background: #121215;
     border: 1px solid var(--border-color);
@@ -270,7 +261,6 @@ select, input {
 .racer-horse {
     position: absolute;
     left: 0px;
-    transition: left 0.05s linear;
     width: 38px;
     height: 38px;
     border-radius: 6px;
@@ -285,15 +275,4 @@ select, input {
     width: 34px;
     height: auto;
     display: block;
-}
-@keyframes sprintGallop {
-    0% { transform: translateY(0px) rotate(0deg) scale(1, 1); }
-    25% { transform: translateY(-5px) rotate(-4deg) scale(1.03, 0.97); }
-    50% { transform: translateY(0px) rotate(0deg) scale(0.97, 1.03); }
-    75% { transform: translateY(-4px) rotate(3deg) scale(1.04, 0.96); }
-    100% { transform: translateY(0px) rotate(0deg) scale(1, 1); }
-}
-
-.racer-horse.is-galloping {
-    animation: sprintGallop 0.25s infinite ease-in-out;
 }
