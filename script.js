@@ -23,12 +23,14 @@ function rgbToHex(r, g, b) {
     }).join("");
 }
 
-// Exact animation frame files from your project folder
-const frameFiles = ["3903_2.png", "3905_2.png", "3906_2.png", "3907_2.png", "3909_2.png"]; //[span_1](start_span)[span_1](end_span)
+// Map specific frames to exact movement stages:
+// Index 0: Standing ("3903_2.png")
+// Index 1-2: Throttle / Acceleration ("3905_2.png", "3906_2.png")
+// Index 3-4: Full Sprint ("3907_2.png", "3909_2.png")
+const frameFiles = ["3903_2.png", "3905_2.png", "3906_2.png", "3907_2.png", "3909_2.png"];[span_0](start_span)[span_0](end_span)
 
 let tintedFramesCache = {};
 
-// Pre-load and tint all animation frames for a given hex color
 function loadTintedFrames(hexColor, callback) {
     if (tintedFramesCache[hexColor]) {
         callback(tintedFramesCache[hexColor]);
@@ -103,7 +105,7 @@ function updateUI() {
     const activeImg = document.getElementById('horse-image-display');
     if (activeImg) {
         loadTintedFrames(active.hex, (frames) => {
-            if (frames && frames[0]) activeImg.src = frames[0];
+            if (frames && frames[0]) activeImg.src = frames[0]; // Show standing frame in stable
         });
     }
 
@@ -292,7 +294,6 @@ function startLiveRace() {
     const ai1Img = document.getElementById('ai1-img');
     const ai2Img = document.getElementById('ai2-img');
 
-    // Load actual frame sequences for player and AI horses
     loadTintedFrames(active.hex, (playerFrames) => {
         loadTintedFrames("#5e5854", (ai1Frames) => {
             loadTintedFrames("#ad754c", (ai2Frames) => {
@@ -303,8 +304,8 @@ function startLiveRace() {
                 raceInterval = setInterval(() => {
                     frameStep++;
                     
-                    // Acceleration throttle curve from standing position
-                    let throttleFactor = Math.min(1.4, 0.4 + (frameStep * 0.015));
+                    // Throttle and acceleration curve from standing position
+                    let throttleFactor = Math.min(1.4, 0.3 + (frameStep * 0.012));
 
                     let playerSpeed = (1.2 + (active.stats.speed * 0.08) + (Math.random() * 0.5)) * throttleFactor;
                     let ai1Speed = (1.5 + (Math.random() * 0.7)) * throttleFactor;
@@ -318,17 +319,32 @@ function startLiveRace() {
                     if (ai1Elem) ai1Elem.style.left = ai1Pos + 'px';
                     if (ai2Elem) ai2Elem.style.left = ai2Pos + 'px';
 
-                    // PURE FRAME LOOP: Sequentially loop through the 5 frame files without CSS bouncing
-                    let frameIndex = Math.floor(frameStep / 4) % frameFiles.length;
+                    // STATE-DRIVEN FRAME MAPPING:
+                    // - At the start line (frameStep < 8): Show standing frame (Index 0: "3903_2.png")
+                    // - During throttle / acceleration (8 <= frameStep < 25): Cycle through throttle frames (Index 1-2: "3905_2.png", "3906_2.png")
+                    // - During full sprint (frameStep >= 25): Cycle through high-speed sprint frames (Index 3-4: "3907_2.png", "3909_2.png")
+                    function getCorrectFrameIndex(step) {
+                        if (step < 8) {
+                            return 0; // Standing
+                        } else if (step < 25) {
+                            return 1 + (Math.floor(step / 4) % 2); // Throttle (frames 1 & 2)
+                        } else {
+                            return 3 + (Math.floor(step / 3) % 2); // Full Sprint (frames 3 & 4)
+                        }
+                    }
 
-                    if (playerImg && playerFrames && playerFrames[frameIndex]) {
-                        playerImg.src = playerFrames[frameIndex];
+                    let pFrameIdx = getCorrectFrameIndex(frameStep);
+                    let ai1FrameIdx = getCorrectFrameIndex(frameStep);
+                    let ai2FrameIdx = getCorrectFrameIndex(frameStep);
+
+                    if (playerImg && playerFrames && playerFrames[pFrameIdx]) {
+                        playerImg.src = playerFrames[pFrameIdx];
                     }
-                    if (ai1Img && ai1Frames && ai1Frames[frameIndex]) {
-                        ai1Img.src = ai1Frames[frameIndex];
+                    if (ai1Img && ai1Frames && ai1Frames[ai1FrameIdx]) {
+                        ai1Img.src = ai1Frames[ai1FrameIdx];
                     }
-                    if (ai2Img && ai2Frames && ai2Frames[frameIndex]) {
-                        ai2Img.src = ai2Frames[frameIndex];
+                    if (ai2Img && ai2Frames && ai2Frames[ai2FrameIdx]) {
+                        ai2Img.src = ai2Frames[ai2FrameIdx];
                     }
 
                     if (playerPos >= trackWidth || ai1Pos >= trackWidth || ai2Pos >= trackWidth) {
@@ -364,4 +380,4 @@ function startLiveRace() {
 }
 
 updateUI();
-                                           
+                                
