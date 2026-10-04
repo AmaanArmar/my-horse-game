@@ -40,12 +40,11 @@ function createTintedHorseImage(hexColor, callback) {
         const targetRgb = hexToRgb(hexColor);
 
         for (let i = 0; i < data.length; i += 4) {
-            let r = data[i];
-            let g = data[i + 1];
-            let b = data[i + 2];
             let a = data[i + 3];
-
-            if (a > 20) { // If it's part of the horse, tint it
+            if (a > 20) { 
+                let r = data[i];
+                let g = data[i + 1];
+                let b = data[i + 2];
                 let avg = (r + g + b) / 3;
                 let factor = avg / 255;
                 data[i] = Math.round(targetRgb.r * factor);
@@ -56,11 +55,15 @@ function createTintedHorseImage(hexColor, callback) {
         ctx.putImageData(imgData, 0, 0);
         callback(canvas.toDataURL());
     };
+    img.onerror = () => {
+        // Fallback if image fails to load
+        callback("");
+    };
 }
 
 function updateUI() {
-    document.getElementById('gold-display').innerText = gameData.gold;
-    document.getElementById('diamond-display').innerText = gameData.diamonds;
+    document.getElementById('gold-display').innerText = `🪙 ${gameData.gold}`;
+    document.getElementById('diamond-display').innerText = `💎 ${gameData.diamonds}`;
 
     let active = gameData.horses[gameData.activeHorseIndex];
     if (!active.stats) {
@@ -77,7 +80,7 @@ function updateUI() {
     const activeImg = document.getElementById('horse-image-display');
     if (activeImg) {
         createTintedHorseImage(active.hex, (tintedUrl) => {
-            activeImg.src = tintedUrl;
+            if (tintedUrl) activeImg.src = tintedUrl;
         });
     }
 
@@ -85,9 +88,9 @@ function updateUI() {
     gameData.horses.forEach((h, index) => {
         inventoryHtml += `
             <div class="stable-horse-item" onclick="selectActiveHorse(${index})" style="cursor:pointer; display: flex; align-items: center; gap: 10px;">
-                <div style="width: 16px; height: 16px; background-color: ${h.hex}; border-radius: 50%; border: 1px solid #fff;"></div>
+                <div style="width: 14px; height: 14px; background-color: ${h.hex}; border-radius: 50%; border: 1px solid #fff;"></div>
                 <div>
-                    <strong>${h.name}</strong> <span style="font-size:0.70rem; color:var(--text-muted);">(${h.stars}★ - ${h.hex})</span>
+                    <strong>${h.name}</strong> <span style="font-size:0.7rem; color:var(--text-muted);">(${h.stars}★ - ${h.hex})</span>
                 </div>
                 <div style="font-size: 0.8rem; color: var(--accent-gold); margin-left: auto;">
                     ${index === gameData.activeHorseIndex ? '✓ Active' : 'Select'}
@@ -254,7 +257,7 @@ function startLiveRace() {
     
     let trackContainer = document.getElementById('race-track');
     if (!trackContainer) return;
-    let trackWidth = trackContainer.offsetWidth - 80;
+    let trackWidth = trackContainer.offsetWidth - 60;
     
     let playerPos = 0;
     let ai1Pos = 0;
@@ -266,9 +269,9 @@ function startLiveRace() {
     const ai1Img = document.getElementById('ai1-img');
     const ai2Img = document.getElementById('ai2-img');
 
-    if (playerImg) createTintedHorseImage(active.hex, (url) => playerImg.src = url);
-    if (ai1Img) createTintedHorseImage("#5e5854", (url) => ai1Img.src = url);
-    if (ai2Img) createTintedHorseImage("#ffb703", (url) => ai2Img.src = url);
+    if (playerImg) createTintedHorseImage(active.hex, (url) => { if (url) playerImg.src = url; });
+    if (ai1Img) createTintedHorseImage("#5e5854", (url) => { if (url) ai1Img.src = url; });
+    if (ai2Img) createTintedHorseImage("#ffb703", (url) => { if (url) ai2Img.src = url; });
 
     if (raceInterval) clearInterval(raceInterval);
 
