@@ -115,6 +115,7 @@
             margin-bottom: 15px;
         }
 
+        /* Fixed container clipping to prevent color bleeding past borders */
         .horse-wrapper {
             position: relative;
             display: inline-block;
@@ -123,7 +124,8 @@
             margin-bottom: 8px;
             width: 110px;
             height: 110px;
-            background-color: var(--horse-color, #ad754c);
+            background-color: var(--horse-color, #d37b3f);
+            isolation: isolate;
         }
 
         .horse-wrapper img {
@@ -280,7 +282,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: var(--horse-color, #ad754c);
+            background-color: var(--horse-color, #d37b3f);
+            isolation: isolate;
         }
 
         .racer-horse img {
@@ -327,7 +330,7 @@
         <div id="stable-tab" class="tab-pane active">
             <div class="horse-showcase">
                 <div id="active-horse-wrapper" class="horse-wrapper">
-                    <img id="active-horse-img" src="3903_2.png" alt="Horse Sprite">
+                    <img id="active-horse-img" src="3903_2.png" alt="Horse Sprite" onerror="this.style.display='none'">
                 </div>
                 <div class="horse-info">
                     <span class="grade-badge" id="active-stars">Grade 1★</span>
@@ -405,17 +408,17 @@
             <div id="race-track" class="race-track-container">
                 <div class="racer-lane">
                     <div id="player-racer" class="racer-horse">
-                        <img id="player-racer-img" src="3903_2.png" alt="Racer">
+                        <img id="player-racer-img" src="3903_2.png" alt="Racer" onerror="this.style.display='none'">
                     </div>
                 </div>
                 <div class="racer-lane">
                     <div id="ai1-racer" class="racer-horse" style="--horse-color: #788691;">
-                        <img src="3903_2.png" alt="AI 1">
+                        <img src="3903_2.png" alt="AI 1" onerror="this.style.display='none'">
                     </div>
                 </div>
                 <div class="racer-lane" style="border-bottom: none;">
                     <div id="ai2-racer" class="racer-horse" style="--horse-color: #5c3a21;">
-                        <img src="3903_2.png" alt="AI 2">
+                        <img src="3903_2.png" alt="AI 2" onerror="this.style.display='none'">
                     </div>
                 </div>
             </div>
@@ -438,21 +441,20 @@
     </div>
 
     <script>
-        // Updated complete coat library based on the provided image palette
         const coatLibrary = [
-            { name: "Classic Black", hex: "#111113" },[span_1](start_span)[span_1](end_span)
-            { name: "Rich Black", hex: "#261c22" },[span_2](start_span)[span_2](end_span)
-            { name: "Classic White", hex: "#f8fafc" },[span_3](start_span)[span_3](end_span)
-            { name: "Classic Brown", hex: "#b8977e" },[span_4](start_span)[span_4](end_span)
-            { name: "Rich Brown", hex: "#4a2818" },[span_5](start_span)[span_5](end_span)
-            { name: "Copper Chestnut", hex: "#a11d0b" },[span_6](start_span)[span_6](end_span)
-            { name: "Classic Chestnut", hex: "#d37b3f" },[span_7](start_span)[span_7](end_span)
-            { name: "Amber Chestnut", hex: "#dc5214" },[span_8](start_span)[span_8](end_span)
-            { name: "Flaxen Chestnut", hex: "#a8511e" },[span_9](start_span)[span_9](end_span)
-            { name: "Copper Bay", hex: "#7a382b" },[span_10](start_span)[span_10](end_span)
-            { name: "Golden Bay", hex: "#b87347" },[span_11](start_span)[span_11](end_span)
-            { name: "Classic Bay", hex: "#59141f" },[span_12](start_span)[span_12](end_span)
-            { name: "Blood Bay", hex: "#9e380f" }[span_13](start_span)[span_13](end_span)
+            { name: "Classic Black", hex: "#111113" },
+            { name: "Rich Black", hex: "#261c22" },
+            { name: "Classic White", hex: "#f8fafc" },
+            { name: "Classic Brown", hex: "#b8977e" },
+            { name: "Rich Brown", hex: "#4a2818" },
+            { name: "Copper Chestnut", hex: "#a11d0b" },
+            { name: "Classic Chestnut", hex: "#d37b3f" },
+            { name: "Amber Chestnut", hex: "#dc5214" },
+            { name: "Flaxen Chestnut", hex: "#a8511e" },
+            { name: "Copper Bay", hex: "#7a382b" },
+            { name: "Golden Bay", hex: "#b87347" },
+            { name: "Classic Bay", hex: "#59141f" },
+            { name: "Blood Bay", hex: "#9e380f" }
         ];
 
         let gameData = {
@@ -506,4 +508,6 @@
                 let inventoryHtml = "";
                 gameData.horses.forEach((h, index) => {
                     inventoryHtml += `
-                        <div class="stable-horse-item" onc
+                        <div class="stable-horse-item" onclick="selectActiveHorse(${index})" style="border-left: 4px solid ${h.coat.hex};">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div class="horse-wrapper" style="width: 36px; height: 36px; --horse-color: ${h.coat.hex};
