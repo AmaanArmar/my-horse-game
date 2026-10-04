@@ -286,3 +286,14 @@ select, input {
     height: auto;
     display: block;
 }
+@keyframes sprintGallop {
+    0% { transform: translateY(0px) rotate(0deg) scale(1, 1); }
+    25% { transform: translateY(-5px) rotate(-4deg) scale(1.03, 0.97); }
+    50% { transform: translateY(0px) rotate(0deg) scale(0.97, 1.03); }
+    75% { transform: translateY(-4px) rotate(3deg) scale(1.04, 0.96); }
+    100% { transform: translateY(0px) rotate(0deg) scale(1, 1); }
+}
+
+.racer-horse.is-galloping {
+    animation: sprintGallop 0.25s infinite ease-in-out;
+}
