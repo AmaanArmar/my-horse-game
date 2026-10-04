@@ -254,8 +254,8 @@ select, input {
 }
 
 .race-track-container {
-    background: #121215;
-    border: 1px solid var(--border-color);
+    background: #173819;
+    border: 1px solid #28592b;
     border-radius: 12px;
     padding: 10px;
     margin-bottom: 12px;
@@ -267,7 +267,7 @@ select, input {
 .racer-lane {
     position: relative;
     height: 42px;
-    border-bottom: 1px dashed var(--border-color);
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
     margin-bottom: 6px;
     display: flex;
     align-items: center;
