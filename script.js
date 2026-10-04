@@ -23,10 +23,9 @@ function rgbToHex(r, g, b) {
     }).join("");
 }
 
-// Frame filenames available in your project
-const frameFiles = ["3903_2.png", "3905_2.png", "3906_2.png", "3907_2.png", "3909_2.png"];
+// Exact animation frame files from your project folder
+const frameFiles = ["3903_2.png", "3905_2.png", "3906_2.png", "3907_2.png", "3909_2.png"]; //[span_1](start_span)[span_1](end_span)
 
-// Cache to store pre-tinted frames for each color so animations run instantly without lag
 let tintedFramesCache = {};
 
 // Pre-load and tint all animation frames for a given hex color
@@ -293,7 +292,7 @@ function startLiveRace() {
     const ai1Img = document.getElementById('ai1-img');
     const ai2Img = document.getElementById('ai2-img');
 
-    // Load actual frame sequences for player, AI1 (#5e5854), and AI2 (#ad754c)
+    // Load actual frame sequences for player and AI horses
     loadTintedFrames(active.hex, (playerFrames) => {
         loadTintedFrames("#5e5854", (ai1Frames) => {
             loadTintedFrames("#ad754c", (ai2Frames) => {
@@ -304,8 +303,8 @@ function startLiveRace() {
                 raceInterval = setInterval(() => {
                     frameStep++;
                     
-                    // Smooth acceleration throttle curve from standing start
-                    let throttleFactor = Math.min(1.4, 0.5 + (frameStep * 0.02));
+                    // Acceleration throttle curve from standing position
+                    let throttleFactor = Math.min(1.4, 0.4 + (frameStep * 0.015));
 
                     let playerSpeed = (1.2 + (active.stats.speed * 0.08) + (Math.random() * 0.5)) * throttleFactor;
                     let ai1Speed = (1.5 + (Math.random() * 0.7)) * throttleFactor;
@@ -319,8 +318,8 @@ function startLiveRace() {
                     if (ai1Elem) ai1Elem.style.left = ai1Pos + 'px';
                     if (ai2Elem) ai2Elem.style.left = ai2Pos + 'px';
 
-                    // Cycle through the actual frame files based on speed/step to animate galloping
-                    let frameIndex = Math.floor(frameStep / 3) % frameFiles.length;
+                    // PURE FRAME LOOP: Sequentially loop through the 5 frame files without CSS bouncing
+                    let frameIndex = Math.floor(frameStep / 4) % frameFiles.length;
 
                     if (playerImg && playerFrames && playerFrames[frameIndex]) {
                         playerImg.src = playerFrames[frameIndex];
@@ -365,3 +364,4 @@ function startLiveRace() {
 }
 
 updateUI();
+                                           
