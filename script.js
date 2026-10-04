@@ -25,14 +25,14 @@ function rgbToHex(r, g, b) {
     }).join("");
 }
 
-// Calculates CSS filter approximation to tint the base white horse image toward a target HEX color
+// Fixed CSS filter for accurate brown, amber, and palomino tones without green distortion
 function getCssFilterForHex(hex) {
     let rgb = hexToRgb(hex);
-    // Base image is white (~255, 255, 255). We calculate a rough sepia/hue-rotate/brightness filter combo.
     let brightness = (rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114) / 255;
-    let sepia = rgb.r > rgb.b ? 1 : 0.3;
-    let hue = Math.round((rgb.r - rgb.b) * 0.5);
-    return `brightness(${Math.max(0.2, brightness * 1.2)}) sepia(${sepia}) hue-rotate(${hue}deg)`;
+    // Calibrated hue rotation and saturation to keep browns rich and natural
+    let hueShift = Math.round((rgb.r - rgb.g) * 0.4);
+    let saturation = rgb.r > rgb.b ? '400%' : '150%';
+    return `brightness(${Math.max(0.15, brightness * 1.1)}) sepia(0.9) saturate(${saturation}) hue-rotate(${hueShift}deg)`;
 }
 
 let animationInterval = null;
@@ -124,7 +124,7 @@ function careForHorse(actionType) {
 
 function trainHorseStat(statName) {
     let active = gameData.horses[gameData.activeHorseIndex];
-    let statCap = active.stars * 100; // 1-star = 100 cap, 10-star = 1000 cap!
+    let statCap = active.stars * 100; // 1-star = 100 cap, up to 10-star = 1000 cap!
     
     if (active.stats[statName] >= statCap) {
         alert(`${active.name} has reached the max cap (${statCap}) for ${statName.toUpperCase()} at ${active.stars} Stars! Breed a higher star tier to continue training.`);
@@ -175,7 +175,6 @@ function breedHorses() {
     let dam = gameData.horses[mIndex];
     gameData.diamonds -= 5;
 
-    // Blend parent RGB colors to create a unique inherited foal hex code!
     let rgbSire = hexToRgb(sire.hex);
     let rgbDam = hexToRgb(dam.hex);
     let blendR = Math.round((rgbSire.r + rgbDam.r) / 2 + (Math.random() * 20 - 10));
@@ -184,7 +183,7 @@ function breedHorses() {
     let inheritedHex = rgbToHex(blendR, blendG, blendB);
 
     let baseStars = Math.max(sire.stars, dam.stars);
-    let upgraded = Math.random() < 0.40 && baseStars < 10; // Supports up to 10 Stars!
+    let upgraded = Math.random() < 0.40 && baseStars < 10;
     let newStars = upgraded ? baseStars + 1 : baseStars;
 
     let foalNames = ["Nova", "Eclipse", "Comet", "Spirit", "Miracle", "Legacy", "Apollo"];
@@ -239,12 +238,8 @@ function startLiveRace() {
         playerImg.src = "3903_2.png";
         playerImg.style.filter = getCssFilterForHex(active.hex);
     }
-    if (ai1Img) {
-        ai1Img.src = "4018.png";
-    }
-    if (ai2Img) {
-        ai2Img.src = "3906_2.png";
-    }
+    if (ai1Img) ai1Img.src = "4018.png";
+    if (ai2Img) ai2Img.src = "3906_2.png";
 
     if (raceInterval) clearInterval(raceInterval);
 
@@ -271,7 +266,6 @@ function startLiveRace() {
             } else {
                 clearInterval(raceInterval);
 
-                // Payout including Gold and Gems for winning!
                 let prizeGold = 300 + (active.stars * 150);
                 let prizeGems = 2 + Math.floor(active.stars / 2);
                 gameData.gold += prizeGold;
@@ -290,3 +284,4 @@ function startLiveRace() {
 }
 
 updateUI();
+            
