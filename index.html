@@ -6,63 +6,311 @@
     <title>Horse Racing & Breeding Game</title>
     <style>
         :root {
-            --bg-dark: #121214;
-            --bg-card: #1a1a1e;
-            --text-main: #f4f4f5;
-            --text-muted: #a1a1aa;
-            --accent-gold: #fbbf24;
-            --accent-gem: #38bdf8;
+            --bg-main: #0f0f12;
+            --bg-card: #18181b;
+            --bg-card-hover: #222227;
+            --accent-gold: #f59e0b;
+            --accent-gold-hover: #d97706;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #27272a;
         }
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: Arial, sans-serif;
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .container { max-width: 850px; margin: 0 auto; }
-        .header-bar { display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .nav-tab { background: var(--bg-card); border: none; color: var(--text-main); padding: 10px 20px; cursor: pointer; border-radius: 5px; font-weight: bold; }
-        .nav-tab.active { background: var(--accent-gold); color: #000; }
-        .tab-pane { display: none; background: var(--bg-card); padding: 20px; border-radius: 8px; }
-        .tab-pane.active { display: block; }
-        button { cursor: pointer; padding: 8px 14px; border-radius: 5px; border: none; background: #3f3f46; color: #fff; font-weight: bold; }
-        button:hover { background: #52525b; }
-        .racetrack { position: relative; height: 300px; background: #22c55e; border-radius: 8px; overflow: hidden; margin-top: 15px; border: 4px solid #15803d; }
-        .racer { position: absolute; left: 0px; width: 80px; height: 90px; display: flex; align-items: center; }
-        .lane { border-bottom: 2px dashed rgba(255,255,255,0.4); height: 100px; position: relative; display: flex; align-items: center; }
-        .stable-horse-item { background: #27272a; padding: 12px; border-radius: 6px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--accent-gold); cursor: pointer; }
-        .grade-badge { background: var(--accent-gold); color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
-        
-        .horse-sprite-box {
-            width: 80px;
-            height: 80px;
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-header {
+            background: #121215;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .game-header h1 {
+            font-size: 1.25rem;
+            color: var(--accent-gold);
+        }
+
+        .currency-box {
+            display: flex;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #121215;
+            border-bottom: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 12px 10px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .nav-tab.active {
+            color: var(--accent-gold);
+            border-bottom: 2px solid var(--accent-gold);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .tab-pane {
+            display: none;
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
+            max-height: 520px;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .horse-showcase {
+            background: #121215;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        /* Updated with CSS Masking for exact body color tinting */
+        .horse-wrapper {
+            position: relative;
+            display: inline-block;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 8px;
+            width: 110px;
+            height: 110px;
+            background-color: var(--horse-color, #8b4513);
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+            -webkit-mask-image: url('3903_2.png');
+            mask-image: url('3903_2.png');
+        }
+
+        .horse-wrapper img {
+            display: none; /* Hidden since background-color fills through mask */
+        }
+
+        .horse-info h2 {
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+            color: var(--text-main);
+        }
+
+        .horse-info p {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            background: #121215;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+        }
+
+        .stat-card .label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stable-inventory {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 140px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+        }
+
+        .stable-horse-item {
+            background: #121215;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: border-color 0.2s ease;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .stable-horse-item:hover {
+            border-color: var(--accent-gold);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-hover));
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            padding: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+            margin-bottom: 8px;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 8px 10px;
+            background: #121215;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+        }
+
+        .grade-badge {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.7rem;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        .hex-code-label {
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            background: #121215;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .race-track-container {
+            background: #121215;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+            height: 165px;
+        }
+
+        .racer-lane {
+            position: relative;
+            height: 42px;
+            border-bottom: 1px dashed var(--border-color);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Racer horse styled with mask matching body color */
+        .racer-horse {
+            position: absolute;
+            left: 0px;
+            width: 38px;
+            height: 38px;
+            border-radius: 6px;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            flex-shrink: 0;
-            background: transparent; /* Fixed: Removed solid background block coloring */
+            background-color: var(--horse-color, #8b4513);
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+            -webkit-mask-image: url('3903_2.png');
+            mask-image: url('3903_2.png');
         }
-        .horse-sprite-box img {
-            width: 75px;
-            height: auto;
-            image-rendering: pixelated;
+
+        .racer-horse img {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        
-        <!-- Header Bar -->
-        <div class="header-bar">
-            <div><h2 style="margin:0;">🐎 Horse Racing & Breeding Studio</h2></div>
-            <div>
-                <span id="gold-display" style="margin-right: 15px; font-weight: bold;">🪙 450</span>
-                <span id="diamond-display" style="font-weight: bold;">💎 65</span>
+
+    <div class="game-container">
+        <!-- Game Header -->
+        <div class="game-header">
+            <h1>🐎 Horse Studio</h1>
+            <div class="currency-box">
+                <span id="gold-display">🪙 450</span>
+                <span id="diamond-display">💎 65</span>
             </div>
         </div>
 
@@ -70,96 +318,83 @@
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="switchTab('stable', this)">Stable</button>
             <button class="nav-tab" onclick="switchTab('race', this)">Race Track</button>
-            <button class="nav-tab" onclick="switchTab('breeding', this)">Breeding Studio</button>
+            <button class="nav-tab" onclick="switchTab('breeding', this)">Breeding</button>
         </div>
 
         <!-- TAB 1: STABLE -->
         <div id="stable-tab" class="tab-pane active">
-            <h3>Active Horse Details</h3>
-            <div style="display: flex; gap: 20px; align-items: center; background: #27272a; padding: 15px; border-radius: 8px;">
-                <div class="horse-sprite-box">
-                    <img id="horse-image-display" src="3903_2.png" alt="Horse">
+            <div class="horse-showcase">
+                <div id="active-horse-wrapper" class="horse-wrapper"></div>
+                <div class="horse-info">
+                    <span class="grade-badge" id="active-stars">Grade 1★</span>
+                    <h2 id="horse-name-display">Misty</h2>
+                    <p id="horse-meta-display">Mare | Arabian</p>
+                    <div style="margin-top: 4px;">
+                        <span class="hex-code-label" id="active-coat-name">Classic Chestnut</span>
+                    </div>
                 </div>
-                <div>
-                    <h2 id="horse-name-display" style="margin: 0 0 5px 0;">Misty</h2>
-                    <div id="horse-meta-display" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 5px;">Mare | Arabian</div>
-                    <div style="margin-bottom: 5px;"><span class="grade-badge" id="active-stars">Grade 1★</span> | Coat: <strong id="active-coat-name" style="color: var(--accent-gold);">Classic Chestnut</strong></div>
-                    <div style="font-size: 0.85rem; color: var(--text-muted);">Hidden Trait: <span id="active-hidden-coat">Rich Brown</span></div>
-                    <div style="margin-top: 5px;">Energy: <span id="energy-display">100</span> / 100</div>
-                </div>
-            </div>
-            
-            <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-                <button onclick="careForHorse('feed')">Feed (🪙 50)</button>
-                <button onclick="careForHorse('rest')">Rest (🪙 100)</button>
-                <button onclick="buyRandomHorse()" style="background: var(--accent-gold); color: #000;">Buy Horse Slot (🪙 500)</button>
             </div>
 
-            <h3 style="margin-top: 25px;">Stable Inventory (<span id="slot-count">2</span> Horses)</h3>
-            <div id="stable-inventory"></div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="value" id="energy-display">100</div>
+                    <div class="label">Energy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="speed-display">12</div>
+                    <div class="label">Speed Rating</div>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="careForHorse('feed')">Feed Horse (🪙 50)</button>
+            <button class="btn-primary" onclick="careForHorse('rest')">Rest Horse (🪙 100)</button>
+            <button class="btn-primary" onclick="buyRandomHorse()" style="background: linear-gradient(135deg, #38bdf8, #0ea5e9); color: #000;">Buy Stable Slot (🪙 500)</button>
+
+            <h3 style="font-size: 0.9rem; margin: 15px 0 8px 0; color: var(--text-muted);">Stable Inventory (<span id="slot-count">2</span>)</h3>
+            <div id="stable-inventory" class="stable-inventory"></div>
         </div>
 
         <!-- TAB 2: RACE TRACK -->
         <div id="race-tab" class="tab-pane">
-            <h3>Live Race Track</h3>
-            <div id="lap-indicator" style="font-weight: bold; margin-bottom: 10px; color: var(--accent-gold);">Lap 1 / 3</div>
-            <div id="race-track" class="racetrack">
-                <div class="lane">
-                    <div id="player-racer" class="racer" style="top: 5px;">
-                        <div class="horse-sprite-box" style="width: 75px; height: 75px;">
-                            <img id="player-img" src="3903_2.png" alt="Player">
-                        </div>
-                    </div>
+            <div id="lap-indicator" style="font-size: 0.85rem; font-weight: 700; color: var(--accent-gold); margin-bottom: 8px;">Lap 1 / 3</div>
+            <div id="race-track" class="race-track-container">
+                <div class="racer-lane">
+                    <div id="player-racer" class="racer-horse"></div>
                 </div>
-                <div class="lane">
-                    <div id="ai1-racer" class="racer" style="top: 5px;">
-                        <div class="horse-sprite-box" style="width: 75px; height: 75px;">
-                            <img id="ai1-img" src="3903_2.png" alt="AI 1">
-                        </div>
-                    </div>
+                <div class="racer-lane">
+                    <div id="ai1-racer" class="racer-horse" style="--horse-color: #64748b;"></div>
                 </div>
-                <div class="lane" style="border-bottom: none;">
-                    <div id="ai2-racer" class="racer" style="top: 5px;">
-                        <div class="horse-sprite-box" style="width: 75px; height: 75px;">
-                            <img id="ai2-img" src="3903_2.png" alt="AI 2">
-                        </div>
-                    </div>
+                <div class="racer-lane" style="border-bottom: none;">
+                    <div id="ai2-racer" class="racer-horse" style="--horse-color: #ad754c;"></div>
                 </div>
             </div>
-            <button onclick="startLiveRace()" style="margin-top: 15px; padding: 12px 24px; background: var(--accent-gold); color: #000; font-size: 1rem;">Start Live Race!</button>
+            <button class="btn-primary" onclick="startLiveRace()">Start Live Race!</button>
         </div>
 
         <!-- TAB 3: BREEDING STUDIO -->
         <div id="breeding-tab" class="tab-pane">
-            <h3>Genetics & Breeding Studio</h3>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Breed a stallion and mare to pass down coat colors and traits!</p>
-            <div style="display: flex; gap: 20px; margin-bottom: 15px; flex-wrap: wrap;">
-                <div>
-                    <label>Stallion:</label><br>
-                    <select id="stallion-select" style="padding: 8px; width: 220px; margin-top: 5px; background: #27272a; color: #fff; border-radius: 4px;"></select>
-                </div>
-                <div>
-                    <label>Mare:</label><br>
-                    <select id="mare-select" style="padding: 8px; width: 220px; margin-top: 5px; background: #27272a; color: #fff; border-radius: 4px;"></select>
-                </div>
-            </div>
-            <div style="margin-bottom: 15px;">
-                <label style="cursor: pointer;"><input type="checkbox" id="exotic-boost" style="margin-right: 8px;"> Enable Exotic Coat Boost (Cost: 💎 50 Gems)</label>
-            </div>
-            <button onclick="breedHorses()" style="padding: 10px 20px; background: var(--accent-gem); color: #000; font-weight: bold;">Breed Foal (Base: 💎 5 Gems)</button>
-        </div>
+            <h3 style="font-size: 1rem; margin-bottom: 6px;">Genetics Studio</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Select parents to breed a foal with combined coats.</p>
+            
+            <label style="font-size: 0.8rem;">Stallion:</label>
+            <select id="stallion-select"></select>
 
+            <label style="font-size: 0.8rem;">Mare:</label>
+            <select id="mare-select"></select>
+
+            <button class="btn-primary" onclick="breedHorses()" style="background: linear-gradient(135deg, #38bdf8, #0ea5e9); color: #000; margin-top: 5px;">Breed Foal (💎 5)</button>
+        </div>
     </div>
 
     <script>
         const coatLibrary = [
-            { name: "Classic Brown", hex: "#8b4513", tier: "common" },
-            { name: "Rich Brown", hex: "#451a03", tier: "common" },
-            { name: "Classic Chestnut", hex: "#ad754c", tier: "common" },
-            { name: "Copper Chestnut", hex: "#9a3412", tier: "common" },
-            { name: "Gray", hex: "#64748b", tier: "dilution" },
-            { name: "Midnight Black", hex: "#1c1917", tier: "exotic" },
-            { name: "Classic White", hex: "#f8fafc", tier: "exotic" }
+            { name: "Classic Brown", hex: "#8b4513" },
+            { name: "Rich Brown", hex: "#451a03" },
+            { name: "Classic Chestnut", hex: "#ad754c" },
+            { name: "Copper Chestnut", hex: "#9a3412" },
+            { name: "Gray", hex: "#64748b" },
+            { name: "Midnight Black", hex: "#1c1917" },
+            { name: "Classic White", hex: "#f8fafc" }
         ];
 
         let gameData = {
@@ -167,8 +402,8 @@
             diamonds: 65,
             activeHorseIndex: 0,
             horses: [
-                { name: "Misty", gender: "Mare", breed: "Arabian", stars: 1, energy: 100, speed: 12, coat: coatLibrary[2], hiddenCoat: coatLibrary[1] },
-                { name: "Shadow", gender: "Stallion", breed: "Thoroughbred", stars: 1, energy: 100, speed: 13, coat: coatLibrary[5], hiddenCoat: coatLibrary[4] }
+                { name: "Misty", gender: "Mare", breed: "Arabian", stars: 1, energy: 100, speed: 12, coat: coatLibrary[2] },
+                { name: "Shadow", gender: "Stallion", breed: "Thoroughbred", stars: 1, energy: 100, speed: 13, coat: coatLibrary[5] }
             ]
         };
 
@@ -182,32 +417,43 @@
 
                 let active = gameData.horses[gameData.activeHorseIndex] || gameData.horses[0];
                 document.getElementById('horse-name-display').innerText = active.name;
-                document.getElementById('horse-meta-display').innerHTML = `${active.gender} | ${active.breed}`;
+                document.getElementById('horse-meta-display').innerText = `${active.gender} | ${active.breed}`;
                 document.getElementById('active-stars').innerText = `Grade ${active.stars}★`;
                 document.getElementById('active-coat-name').innerText = active.coat.name;
-                document.getElementById('active-hidden-coat').innerText = active.hiddenCoat.name;
                 document.getElementById('energy-display').innerText = active.energy;
+                document.getElementById('speed-display').innerText = active.speed;
 
+                // Update active showcase container color and mask
+                let activeBox = document.getElementById('active-horse-wrapper');
+                if (activeBox) {
+                    activeBox.style.setProperty('--horse-color', active.coat.hex);
+                }
+
+                let playerRacer = document.getElementById('player-racer');
+                if (playerRacer) {
+                    playerRacer.style.setProperty('--horse-color', active.coat.hex);
+                }
+
+                // Render inventory
                 let inventoryHtml = "";
                 gameData.horses.forEach((h, index) => {
                     inventoryHtml += `
-                        <div class="stable-horse-item" onclick="selectActiveHorse(${index})" style="border-left-color: ${h.coat.hex};">
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <div class="horse-sprite-box" style="width: 50px; height: 50px;">
-                                    <img src="3903_2.png" style="width: 45px;" alt="Icon">
-                                </div>
+                        <div class="stable-horse-item" onclick="selectActiveHorse(${index})" style="border-left: 4px solid ${h.coat.hex};">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div class="horse-wrapper" style="width: 36px; height: 36px; --horse-color: ${h.coat.hex}; margin-bottom: 0;"></div>
                                 <div>
-                                    <strong>${h.name}</strong> (${h.gender}, ${h.breed})<br>
-                                    <span style="font-size: 0.75rem; color: var(--text-muted);">Coat: ${h.coat.name} | Stars: ${h.stars}★</span>
+                                    <strong style="font-size: 0.85rem;">${h.name}</strong><br>
+                                    <span style="font-size: 0.7rem; color: var(--text-muted);">${h.coat.name}</span>
                                 </div>
                             </div>
-                            <div style="font-size: 0.85rem; font-weight: bold; color: ${index === gameData.activeHorseIndex ? 'var(--accent-gold)' : 'var(--text-muted)'};">
-                                ${index === gameData.activeHorseIndex ? '✓ Active' : 'Select'}
-                            </div>
+                            <span style="font-size: 0.75rem; color: ${index === gameData.activeHorseIndex ? 'var(--accent-gold)' : 'var(--text-muted)'}; font-weight: 700;">
+                                ${index === gameData.activeHorseIndex ? 'Active' : 'Select'}
+                            </span>
                         </div>`;
                 });
                 document.getElementById('stable-inventory').innerHTML = inventoryHtml;
 
+                // Breeding dropdowns
                 let stallionSelect = document.getElementById('stallion-select');
                 let mareSelect = document.getElementById('mare-select');
                 if (stallionSelect && mareSelect) {
@@ -216,11 +462,8 @@
                     let stallions = gameData.horses.filter(h => h.gender === "Stallion");
                     let mares = gameData.horses.filter(h => h.gender === "Mare");
 
-                    if (stallions.length === 0) stallionSelect.innerHTML = `<option value="">-- None --</option>`;
-                    else stallions.forEach(s => stallionSelect.innerHTML += `<option value="${gameData.horses.indexOf(s)}">${s.name} (${s.coat.name})</option>`);
-
-                    if (mares.length === 0) mareSelect.innerHTML = `<option value="">-- None --</option>`;
-                    else mares.forEach(m => mareSelect.innerHTML += `<option value="${gameData.horses.indexOf(m)}">${m.name} (${m.coat.name})</option>`);
+                    stallionSelect.innerHTML = stallions.length === 0 ? `<option value="">-- None --</option>` : stallions.map(s => `<option value="${gameData.horses.indexOf(s)}">${s.name} (${s.coat.name})</option>`).join('');
+                    mareSelect.innerHTML = mares.length === 0 ? `<option value="">-- None --</option>` : mares.map(m => `<option value="${gameData.horses.indexOf(m)}">${m.name} (${m.coat.name})</option>`).join('');
                 }
             } catch (e) {
                 console.error("UI Error:", e);
@@ -230,8 +473,7 @@
         function switchTab(tabId, btn) {
             document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-            let target = document.getElementById(tabId + '-tab');
-            if (target) target.classList.add('active');
+            document.getElementById(tabId + '-tab').classList.add('active');
             if (btn) btn.classList.add('active');
         }
 
@@ -265,97 +507,31 @@
                 stars: 1,
                 energy: 100,
                 speed: 13,
-                coat: coatLibrary[Math.floor(Math.random() * coatLibrary.length)],
-                hiddenCoat: coatLibrary[Math.floor(Math.random() * coatLibrary.length)]
+                coat: coatLibrary[Math.floor(Math.random() * coatLibrary.length)]
             };
             gameData.horses.push(newHorse);
             gameData.activeHorseIndex = gameData.horses.length - 1;
             updateUI();
-            alert(`New horse ${newHorse.name} joined!`);
+            alert(`New horse ${newHorse.name} joined your stable!`);
         }
 
         function breedHorses() {
             let sSelect = document.getElementById('stallion-select');
             let mSelect = document.getElementById('mare-select');
-            if (!sSelect.value || !mSelect.value) { alert("Select a Stallion and Mare!"); return; }
+            if (!sSelect.value || !mSelect.value) { alert("Select both a Stallion and Mare!"); return; }
             
             if (gameData.diamonds < 5) { alert("Need 💎 5 Diamonds!"); return; }
             gameData.diamonds -= 5;
 
             let sire = gameData.horses[sSelect.value];
-            let dam = gameData.horses[mSelect.value];
             let newFoal = {
                 name: "Foal",
                 gender: Math.random() < 0.5 ? "Stallion" : "Mare",
                 breed: sire.breed,
-                stars: Math.max(sire.stars, dam.stars),
+                stars: sire.stars,
                 energy: 100,
                 speed: 14,
-                coat: sire.coat,
-                hiddenCoat: dam.coat
+                coat: sire.coat
             };
             gameData.horses.push(newFoal);
-            gameData.activeHorseIndex = gameData.horses.length - 1;
-            updateUI();
-            alert("New foal born!");
-        }
-
-        let raceInterval = null;
-        function startLiveRace() {
-            let active = gameData.horses[gameData.activeHorseIndex];
-            if (active.energy < 20) { alert("Horse is too tired!"); return; }
-            active.energy -= 20;
-
-            let playerElem = document.getElementById('player-racer');
-            let ai1Elem = document.getElementById('ai1-racer');
-            let ai2Elem = document.getElementById('ai2-racer');
-            let trackWidth = document.getElementById('race-track').offsetWidth - 80;
-            
-            let playerPos = 0, ai1Pos = 0, ai2Pos = 0, currentLap = 1, frameStep = 0;
-
-            if (raceInterval) clearInterval(raceInterval);
-
-            raceInterval = setInterval(() => {
-                frameStep++;
-                playerPos += 2.5 + (active.speed * 0.05);
-                ai1Pos += 2.6;
-                ai2Pos += 2.4;
-
-                playerElem.style.left = playerPos + 'px';
-                if (ai1Elem) ai1Elem.style.left = ai1Pos + 'px';
-                if (ai2Elem) ai2Elem.style.left = ai2Pos + 'px';
-
-                // Fixed: Animate frame loop for ALL running horses simultaneously
-                let fIdx = Math.floor(frameStep / 4) % frameFiles.length;
-                let pImg = document.getElementById('player-img');
-                let a1Img = document.getElementById('ai1-img');
-                let a2Img = document.getElementById('ai2-img');
-
-                if (pImg) pImg.src = frameFiles[fIdx];
-                if (a1Img) a1Img.src = frameFiles[fIdx];
-                if (a2Img) a2Img.src = frameFiles[fIdx];
-
-                if (playerPos >= trackWidth || ai1Pos >= trackWidth || ai2Pos >= trackWidth) {
-                    if (currentLap < 3) {
-                        currentLap++;
-                        document.getElementById('lap-indicator').innerText = `Lap ${currentLap} / 3`;
-                        playerPos = 0; ai1Pos = 0; ai2Pos = 0;
-                    } else {
-                        clearInterval(raceInterval);
-                        gameData.gold += 400;
-                        gameData.diamonds += 3;
-                        alert("Race Finished!");
-                        playerElem.style.left = '0px';
-                        if (ai1Elem) ai1Elem.style.left = '0px';
-                        if (ai2Elem) ai2Elem.style.left = '0px';
-                        document.getElementById('lap-indicator').innerText = `Lap 1 / 3`;
-                        updateUI();
-                    }
-                }
-            }, 30);
-        }
-
-        window.onload = updateUI;
-    </script>
-</body>
-</html>
+            gameData.active
