@@ -23,6 +23,41 @@ function rgbToHex(r, g, b) {
     }).join("");
 }
 
+// Dynamically tints the horse image pixels to the exact hex color with a transparent background
+function createTintedHorseImage(hexColor, callback) {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = "3903_2.png";
+    img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        
+        ctx.drawImage(img, 0, 0);
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imgData.data;
+        const targetRgb = hexToRgb(hexColor);
+
+        for (let i = 0; i < data.length; i += 4) {
+            let r = data[i];
+            let g = data[i + 1];
+            let b = data[i + 2];
+            let a = data[i + 3];
+
+            if (a > 20) { // If it's part of the horse, tint it
+                let avg = (r + g + b) / 3;
+                let factor = avg / 255;
+                data[i] = Math.round(targetRgb.r * factor);
+                data[i + 1] = Math.round(targetRgb.g * factor);
+                data[i + 2] = Math.round(targetRgb.b * factor);
+            }
+        }
+        ctx.putImageData(imgData, 0, 0);
+        callback(canvas.toDataURL());
+    };
+}
+
 function updateUI() {
     document.getElementById('gold-display').innerText = gameData.gold;
     document.getElementById('diamond-display').innerText = gameData.diamonds;
@@ -41,11 +76,9 @@ function updateUI() {
 
     const activeImg = document.getElementById('horse-image-display');
     if (activeImg) {
-        activeImg.src = "3903_2.png";
-        // Apply direct background color container tinting for true color accuracy
-        activeImg.parentElement.style.backgroundColor = active.hex;
-        activeImg.style.opacity = "0.95";
-        activeImg.classList.add('tinted-horse');
+        createTintedHorseImage(active.hex, (tintedUrl) => {
+            activeImg.src = tintedUrl;
+        });
     }
 
     let inventoryHtml = "";
@@ -65,17 +98,19 @@ function updateUI() {
 
     let stallionSelect = document.getElementById('stallion-select');
     let mareSelect = document.getElementById('mare-select');
-    stallionSelect.innerHTML = "";
-    mareSelect.innerHTML = "";
+    if (stallionSelect && mareSelect) {
+        stallionSelect.innerHTML = "";
+        mareSelect.innerHTML = "";
 
-    let stallions = gameData.horses.filter(h => h.gender === "Stallion");
-    let mares = gameData.horses.filter(h => h.gender === "Mare");
+        let stallions = gameData.horses.filter(h => h.gender === "Stallion");
+        let mares = gameData.horses.filter(h => h.gender === "Mare");
 
-    if (stallions.length === 0) stallionSelect.innerHTML = `<option value="">-- No Stallions Available --</option>`;
-    else stallions.forEach((s) => stallionSelect.innerHTML += `<option value="${gameData.horses.indexOf(s)}">${s.name} (${s.hex}, ${s.stars}★)</option>`);
+        if (stallions.length === 0) stallionSelect.innerHTML = `<option value="">-- No Stallions Available --</option>`;
+        else stallions.forEach((s) => stallionSelect.innerHTML += `<option value="${gameData.horses.indexOf(s)}">${s.name} (${s.hex}, ${s.stars}★)</option>`);
 
-    if (mares.length === 0) mareSelect.innerHTML = `<option value="">-- No Mares Available --</option>`;
-    else mares.forEach((m) => mareSelect.innerHTML += `<option value="${gameData.horses.indexOf(m)}">${m.name} (${m.hex}, ${m.stars}★)</option>`);
+        if (mares.length === 0) mareSelect.innerHTML = `<option value="">-- No Mares Available --</option>`;
+        else mares.forEach((m) => mareSelect.innerHTML += `<option value="${gameData.horses.indexOf(m)}">${m.name} (${m.hex}, ${m.stars}★)</option>`);
+    }
 }
 
 function switchTab(tabId) {
@@ -205,6 +240,8 @@ function breedHorses() {
     alert(upgraded ? `🎉 Foal ${newFoal.name} ranked up to Grade ${newStars}★!` : `Foal ${newFoal.name} born at Grade ${newStars}★!`);
 }
 
+let raceInterval = null;
+
 function startLiveRace() {
     let active = gameData.horses[gameData.activeHorseIndex];
     if (active.energy < 25) { alert("Your horse is too tired! Feed or rest them first."); return; }
@@ -229,19 +266,9 @@ function startLiveRace() {
     const ai1Img = document.getElementById('ai1-img');
     const ai2Img = document.getElementById('ai2-img');
 
-    // Ensure racers use the base white template with proper background color container tinting
-    if (playerImg) {
-        playerImg.src = "3903_2.png";
-        playerImg.parentElement.style.backgroundColor = active.hex;
-    }
-    if (ai1Img) {
-        ai1Img.src = "3903_2.png";
-        ai1Img.parentElement.style.backgroundColor = "#5e5854";
-    }
-    if (ai2Img) {
-        ai2Img.src = "3903_2.png";
-        ai2Img.parentElement.style.backgroundColor = "#ffb703";
-    }
+    if (playerImg) createTintedHorseImage(active.hex, (url) => playerImg.src = url);
+    if (ai1Img) createTintedHorseImage("#5e5854", (url) => ai1Img.src = url);
+    if (ai2Img) createTintedHorseImage("#ffb703", (url) => ai2Img.src = url);
 
     if (raceInterval) clearInterval(raceInterval);
 
@@ -286,4 +313,3 @@ function startLiveRace() {
 }
 
 updateUI();
-        
