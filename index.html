@@ -2,11 +2,317 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Horse Racing & Breeding Game</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --bg-main: #0f0f12;
+            --bg-card: #18181b;
+            --bg-card-hover: #222227;
+            --accent-gold: #f59e0b;
+            --accent-gold-hover: #d97706;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #27272a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-header {
+            background: #121215;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .game-header h1 {
+            font-size: 1.25rem;
+            color: var(--accent-gold);
+        }
+
+        .currency-box {
+            display: flex;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #121215;
+            border-bottom: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 12px 6px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .nav-tab.active {
+            color: var(--accent-gold);
+            border-bottom: 2px solid var(--accent-gold);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .tab-pane {
+            display: none;
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
+            max-height: 520px;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .horse-showcase {
+            background: #121215;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .horse-wrapper {
+            position: relative;
+            display: inline-block;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 8px;
+            width: 110px;
+            height: 110px;
+            background-color: var(--horse-color, #8b4513);
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+            -webkit-mask-image: url('3903_2.png');
+            mask-image: url('3903_2.png');
+        }
+
+        .horse-wrapper img {
+            display: none;
+        }
+
+        .horse-info h2 {
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+            color: var(--text-main);
+        }
+
+        .horse-info p {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card {
+            background: #121215;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+        }
+
+        .stat-card .label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stable-inventory {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 120px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+        }
+
+        .stable-horse-item {
+            background: #121215;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: border-color 0.2s ease;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .stable-horse-item:hover {
+            border-color: var(--accent-gold);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-hover));
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            padding: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+            margin-bottom: 8px;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 8px 10px;
+            background: #121215;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+        }
+
+        .grade-badge {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.7rem;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        .hex-code-label {
+            font-family: monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            background: #121215;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .race-track-container {
+            background: #121215;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+            height: 165px;
+        }
+
+        .racer-lane {
+            position: relative;
+            height: 42px;
+            border-bottom: 1px dashed var(--border-color);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+        }
+
+        .racer-horse {
+            position: absolute;
+            left: 0px;
+            width: 38px;
+            height: 38px;
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--horse-color, #8b4513);
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+            -webkit-mask-image: url('3903_2.png');
+            mask-image: url('3903_2.png');
+        }
+
+        .racer-horse img {
+            display: none;
+        }
+
+        .training-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #121215;
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+    </style>
 </head>
 <body>
+
     <div class="game-container">
         <!-- Game Header -->
         <div class="game-header">
@@ -19,18 +325,16 @@
 
         <!-- Navigation Tabs -->
         <div class="nav-tabs">
-            <button class="nav-tab active" id="tab-btn-stable" onclick="switchTab('stable')">Stable</button>
-            <button class="nav-tab" id="tab-btn-training" onclick="switchTab('training')">Training</button>
-            <button class="nav-tab" id="tab-btn-race" onclick="switchTab('race')">Race Track</button>
-            <button class="nav-tab" id="tab-btn-breeding" onclick="switchTab('breeding')">Breeding</button>
+            <button class="nav-tab active" onclick="switchTab('stable', this)">Stable</button>
+            <button class="nav-tab" onclick="switchTab('training', this)">Training</button>
+            <button class="nav-tab" onclick="switchTab('race', this)">Race Track</button>
+            <button class="nav-tab" onclick="switchTab('breeding', this)">Breeding</button>
         </div>
 
         <!-- TAB 1: STABLE -->
         <div id="stable-tab" class="tab-pane active">
             <div class="horse-showcase">
-                <div class="horse-wrapper">
-                    <img id="active-horse-img" class="horse-sprite" src="3903_2.png" alt="Horse Sprite">
-                </div>
+                <div id="active-horse-wrapper" class="horse-wrapper"></div>
                 <div class="horse-info">
                     <span class="grade-badge" id="active-stars">Grade 1★</span>
                     <h2 id="horse-name-display">Misty</h2>
@@ -58,67 +362,61 @@
 
             <button class="btn-primary" onclick="careForHorse('feed')">Feed Horse (🪙 50)</button>
             <button class="btn-primary" onclick="careForHorse('rest')">Rest Horse (🪙 100)</button>
-            <button class="btn-primary btn-slot" onclick="buyRandomHorse()">Buy Stable Slot (🪙 500)</button>
+            <button class="btn-primary" onclick="buyRandomHorse()" style="background: linear-gradient(135deg, #38bdf8, #0ea5e9); color: #000;">Buy Stable Slot (🪙 500)</button>
 
-            <h3 class="section-title">Stable Inventory (<span id="slot-count">2</span>)</h3>
+            <h3 style="font-size: 0.9rem; margin: 15px 0 8px 0; color: var(--text-muted);">Stable Inventory (<span id="slot-count">2</span>)</h3>
             <div id="stable-inventory" class="stable-inventory"></div>
         </div>
 
         <!-- TAB 2: TRAINING STUDIO -->
         <div id="training-tab" class="tab-pane">
-            <h3 class="pane-title">Aspect Training</h3>
-            <p class="pane-desc">Train aspects to boost overall potential (Max <span id="max-cap-label">100</span> per aspect).</p>
+            <h3 style="font-size: 1rem; margin-bottom: 4px;">Aspect Training</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Train aspects to boost overall potential (Max <span id="max-cap-label">100</span> per aspect).</p>
             
             <div class="training-row">
                 <div>
-                    <strong>Speed</strong><br><span class="row-sub" id="stat-speed-val">20 / 100</span>
+                    <strong>Speed</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);" id="stat-speed-val">20 / 100</span>
                 </div>
-                <button class="btn-train" onclick="trainAspect('speed')">Train (🪙 30)</button>
+                <button onclick="trainAspect('speed')" style="padding: 6px 12px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
             </div>
             <div class="training-row">
                 <div>
-                    <strong>Stamina</strong><br><span class="row-sub" id="stat-stamina-val">20 / 100</span>
+                    <strong>Stamina</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);" id="stat-stamina-val">20 / 100</span>
                 </div>
-                <button class="btn-train" onclick="trainAspect('stamina')">Train (🪙 30)</button>
+                <button onclick="trainAspect('stamina')" style="padding: 6px 12px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
             </div>
             <div class="training-row">
                 <div>
-                    <strong>Agility</strong><br><span class="row-sub" id="stat-agility-val">20 / 100</span>
+                    <strong>Agility</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);" id="stat-agility-val">20 / 100</span>
                 </div>
-                <button class="btn-train" onclick="trainAspect('agility')">Train (🪙 30)</button>
+                <button onclick="trainAspect('agility')" style="padding: 6px 12px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
             </div>
             <div class="training-row">
                 <div>
-                    <strong>Acceleration</strong><br><span class="row-sub" id="stat-accel-val">20 / 100</span>
+                    <strong>Acceleration</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);" id="stat-accel-val">20 / 100</span>
                 </div>
-                <button class="btn-train" onclick="trainAspect('accel')">Train (🪙 30)</button>
+                <button onclick="trainAspect('accel')" style="padding: 6px 12px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
             </div>
             <div class="training-row">
                 <div>
-                    <strong>Spirit</strong><br><span class="row-sub" id="stat-spirit-val">20 / 100</span>
+                    <strong>Spirit</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);" id="stat-spirit-val">20 / 100</span>
                 </div>
-                <button class="btn-train" onclick="trainAspect('spirit')">Train (🪙 30)</button>
+                <button onclick="trainAspect('spirit')" style="padding: 6px 12px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
             </div>
         </div>
 
         <!-- TAB 3: RACE TRACK -->
         <div id="race-tab" class="tab-pane">
-            <div id="lap-indicator" class="lap-indicator">Lap 1 / 3</div>
+            <div id="lap-indicator" style="font-size: 0.85rem; font-weight: 700; color: var(--accent-gold); margin-bottom: 8px;">Lap 1 / 3</div>
             <div id="race-track" class="race-track-container">
                 <div class="racer-lane">
-                    <div id="player-racer" class="racer-horse">
-                        <img id="player-racer-img" class="horse-sprite" src="3903_2.png" alt="Racer">
-                    </div>
+                    <div id="player-racer" class="racer-horse"></div>
                 </div>
                 <div class="racer-lane">
-                    <div id="ai1-racer" class="racer-horse">
-                        <img id="ai1-racer-img" class="horse-sprite ai-sprite-1" src="3903_2.png" alt="AI 1">
-                    </div>
+                    <div id="ai1-racer" class="racer-horse" style="--horse-color: #64748b;"></div>
                 </div>
-                <div class="racer-lane last-lane">
-                    <div id="ai2-racer" class="racer-horse">
-                        <img id="ai2-racer-img" class="horse-sprite ai-sprite-2" src="3903_2.png" alt="AI 2">
-                    </div>
+                <div class="racer-lane" style="border-bottom: none;">
+                    <div id="ai2-racer" class="racer-horse" style="--horse-color: #ad754c;"></div>
                 </div>
             </div>
             <button class="btn-primary" onclick="startLiveRace()">Start Live Race!</button>
@@ -126,19 +424,89 @@
 
         <!-- TAB 4: BREEDING STUDIO -->
         <div id="breeding-tab" class="tab-pane">
-            <h3 class="pane-title">Genetics Studio</h3>
-            <p class="pane-desc">Select parents to breed a foal.</p>
+            <h3 style="font-size: 1rem; margin-bottom: 6px;">Genetics Studio</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Select parents to breed a foal.</p>
             
-            <label class="select-label">Stallion:</label>
+            <label style="font-size: 0.8rem;">Stallion:</label>
             <select id="stallion-select"></select>
 
-            <label class="select-label">Mare:</label>
+            <label style="font-size: 0.8rem;">Mare:</label>
             <select id="mare-select"></select>
 
-            <button class="btn-primary btn-breed" onclick="breedHorses()">Breed Foal (💎 5)</button>
+            <button class="btn-primary" onclick="breedHorses()" style="background: linear-gradient(135deg, #38bdf8, #0ea5e9); color: #000; margin-top: 5px;">Breed Foal (💎 5)</button>
         </div>
     </div>
 
-    <script src="script.js"></script>
-</body>
-</html>
+    <script>
+        const coatLibrary = [
+            { name: "Classic Brown", hex: "#8b4513" },
+            { name: "Rich Brown", hex: "#451a03" },
+            { name: "Classic Chestnut", hex: "#ad754c" },
+            { name: "Copper Chestnut", hex: "#9a3412" },
+            { name: "Gray", hex: "#64748b" },
+            { name: "Midnight Black", hex: "#1c1917" },
+            { name: "Classic White", hex: "#f8fafc" }
+        ];
+
+        let gameData = {
+            gold: 450,
+            diamonds: 65,
+            activeHorseIndex: 0,
+            horses: [
+                { name: "Misty", gender: "Mare", breed: "Arabian", stars: 1, energy: 100, stats: { speed: 20, stamina: 20, agility: 20, accel: 20, spirit: 20 }, coat: coatLibrary[2] },
+                { name: "Shadow", gender: "Stallion", breed: "Thoroughbred", stars: 2, energy: 100, stats: { speed: 40, stamina: 35, agility: 40, accel: 38, spirit: 42 }, coat: coatLibrary[5] }
+            ]
+        };
+
+        const frameFiles = ["3903_2.png", "3905_2.png", "3906_2.png", "3907_2.png", "3909_2.png"];
+
+        function getStatCap(stars) {
+            return stars * 100;
+        }
+
+        function updateUI() {
+            try {
+                document.getElementById('gold-display').innerText = `🪙 ${gameData.gold}`;
+                document.getElementById('diamond-display').innerText = `💎 ${gameData.diamonds}`;
+                document.getElementById('slot-count').innerText = gameData.horses.length;
+
+                let active = gameData.horses[gameData.activeHorseIndex] || gameData.horses[0];
+                document.getElementById('horse-name-display').innerText = active.name;
+                document.getElementById('horse-meta-display').innerText = `${active.gender} | ${active.breed}`;
+                document.getElementById('active-stars').innerText = `Grade ${active.stars}★`;
+                document.getElementById('active-coat-name').innerText = active.coat.name;
+                document.getElementById('energy-display').innerText = active.energy;
+
+                let maxCap = getStatCap(active.stars);
+                document.getElementById('max-cap-label').innerText = maxCap;
+
+                let avgStats = Math.floor((active.stats.speed + active.stats.stamina + active.stats.agility + active.stats.accel + active.stats.spirit) / 5);
+                document.getElementById('avg-stat-display').innerText = avgStats;
+                document.getElementById('speed-rating-display').innerText = active.stats.speed;
+
+                // Training labels
+                document.getElementById('stat-speed-val').innerText = `${active.stats.speed} / ${maxCap}`;
+                document.getElementById('stat-stamina-val').innerText = `${active.stats.stamina} / ${maxCap}`;
+                document.getElementById('stat-agility-val').innerText = `${active.stats.agility} / ${maxCap}`;
+                document.getElementById('stat-accel-val').innerText = `${active.stats.accel} / ${maxCap}`;
+                document.getElementById('stat-spirit-val').innerText = `${active.stats.spirit} / ${maxCap}`;
+
+                let activeBox = document.getElementById('active-horse-wrapper');
+                if (activeBox) activeBox.style.setProperty('--horse-color', active.coat.hex);
+
+                let playerRacer = document.getElementById('player-racer');
+                if (playerRacer) playerRacer.style.setProperty('--horse-color', active.coat.hex);
+
+                let inventoryHtml = "";
+                gameData.horses.forEach((h, index) => {
+                    inventoryHtml += `
+                        <div class="stable-horse-item" onclick="selectActiveHorse(${index})" style="border-left: 4px solid ${h.coat.hex};">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div class="horse-wrapper" style="width: 36px; height: 36px; --horse-color: ${h.coat.hex}; margin-bottom: 0;"></div>
+                                <div>
+                                    <strong style="font-size: 0.85rem;">${h.name}</strong><br>
+                                    <span style="font-size: 0.7rem; color: var::text-muted;">${h.stars}★ | ${h.coat.name}</span>
+                                </div>
+                            </div>
+                            <span style="font-size: 0.75rem; color: ${index === gameData.activeHorseIndex ? 'var(--accent-gold)' : 'var(--text-muted)'}; font-weight: 700;">
+        
