@@ -1,6 +1,6 @@
 let gameData = {
-    gold: 550,
-    diamonds: 58,
+    gold: 450,
+    diamonds: 42,
     activeHorseIndex: 0,
     horses: [
         { name: "Misty", gender: "Mare", breed: "Arabian", hex: "#d1af97", coatName: "Light Palomino", stars: 1, power: 100, energy: 95, stats: { speed: 12, stamina: 10, acceleration: 10, agility: 10, jump: 8 } },
@@ -23,7 +23,7 @@ function rgbToHex(r, g, b) {
     }).join("");
 }
 
-// Dynamically tints the horse image pixels to the exact hex color with a transparent background
+// Realistic natural tint function that avoids neon over-saturation
 function createTintedHorseImage(hexColor, callback) {
     const img = new Image();
     img.crossOrigin = "anonymous";
@@ -45,20 +45,18 @@ function createTintedHorseImage(hexColor, callback) {
                 let r = data[i];
                 let g = data[i + 1];
                 let b = data[i + 2];
-                let avg = (r + g + b) / 3;
-                let factor = avg / 255;
-                data[i] = Math.round(targetRgb.r * factor);
-                data[i + 1] = Math.round(targetRgb.g * factor);
-                data[i + 2] = Math.round(targetRgb.b * factor);
+                
+                // Balanced multiplier preserving shadows & highlights without neon blowouts
+                let luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                data[i] = Math.round(targetRgb.r * luminance * 0.9 + r * 0.1);
+                data[i + 1] = Math.round(targetRgb.g * luminance * 0.9 + g * 0.1);
+                data[i + 2] = Math.round(targetRgb.b * luminance * 0.9 + b * 0.1);
             }
         }
         ctx.putImageData(imgData, 0, 0);
         callback(canvas.toDataURL());
     };
-    img.onerror = () => {
-        // Fallback if image fails to load
-        callback("");
-    };
+    img.onerror = () => callback("");
 }
 
 function updateUI() {
@@ -173,11 +171,11 @@ function buyRandomHorse() {
         { hex: "#8b4513", name: "Classic Brown" },
         { hex: "#ad754c", name: "Chestnut" },
         { hex: "#d1af97", name: "Light Palomino" },
-        { hex: "#ffb703", name: "Amber Gold" },
-        { hex: "#fb8500", name: "Sunset Orange" },
-        { hex: "#cc5500", name: "Burnt Amber" },
+        { hex: "#d97706", name: "Amber Gold" },
+        { hex: "#c2410c", name: "Sunset Orange" },
+        { hex: "#9a3412", name: "Burnt Amber" },
         { hex: "#5e5854", name: "Smoky Bay" },
-        { hex: "#000000", name: "Jet Black" }
+        { hex: "#27272a", name: "Jet Black" }
     ];
     let selectedCoat = starterCoats[Math.floor(Math.random() * starterCoats.length)];
     
@@ -210,9 +208,9 @@ function breedHorses() {
 
     let rgbSire = hexToRgb(sire.hex);
     let rgbDam = hexToRgb(dam.hex);
-    let blendR = Math.round((rgbSire.r + rgbDam.r) / 2 + (Math.random() * 25 - 12));
-    let blendG = Math.round((rgbSire.g + rgbDam.g) / 2 + (Math.random() * 25 - 12));
-    let blendB = Math.round((rgbSire.b + rgbDam.b) / 2 + (Math.random() * 25 - 12));
+    let blendR = Math.round((rgbSire.r + rgbDam.r) / 2);
+    let blendG = Math.round((rgbSire.g + rgbDam.g) / 2);
+    let blendB = Math.round((rgbSire.b + rgbDam.b) / 2);
     let inheritedHex = rgbToHex(blendR, blendG, blendB);
 
     let baseStars = Math.max(sire.stars, dam.stars);
@@ -269,21 +267,23 @@ function startLiveRace() {
     const ai1Img = document.getElementById('ai1-img');
     const ai2Img = document.getElementById('ai2-img');
 
+    // Generate natural, realistic coat tints for player and AI horses
     if (playerImg) createTintedHorseImage(active.hex, (url) => { if (url) playerImg.src = url; });
-    if (ai1Img) createTintedHorseImage("#5e5854", (url) => { if (url) ai1Img.src = url; });
-    if (ai2Img) createTintedHorseImage("#ffb703", (url) => { if (url) ai2Img.src = url; });
-
-    // Trigger sprinting animation
-    if (playerElem) playerElem.classList.add('is-galloping');
-    if (ai1Elem) ai1Elem.classList.add('is-galloping');
-    if (ai2Elem) ai2Elem.classList.add('is-galloping');
+    if (ai1Img) createTintedHorseImage("#5e5854", (url) => { if (url) ai1Img.src = url; }); // Smoky Bay
+    if (ai2Img) createTintedHorseImage("#ad754c", (url) => { if (url) ai2Img.src = url; }); // Chestnut
 
     if (raceInterval) clearInterval(raceInterval);
 
+    let frameStep = 0;
+
     raceInterval = setInterval(() => {
-        let playerSpeed = 1.5 + (active.stats.speed * 0.1) + (Math.random() * 0.8);
-        let ai1Speed = 2.2 + (Math.random() * 1.2);
-        let ai2Speed = 2.0 + (Math.random() * 1.2);
+        // Accelerating throttle phase & sprint movement
+        frameStep++;
+        let throttleFactor = Math.min(1.5, 0.8 + (frameStep * 0.01)); // Accelerates smoothly from standing position
+
+        let playerSpeed = (1.2 + (active.stats.speed * 0.08) + (Math.random() * 0.5)) * throttleFactor;
+        let ai1Speed = (1.5 + (Math.random() * 0.7)) * throttleFactor;
+        let ai2Speed = (1.4 + (Math.random() * 0.7)) * throttleFactor;
 
         playerPos += playerSpeed;
         ai1Pos += ai1Speed;
@@ -293,6 +293,13 @@ function startLiveRace() {
         if (ai1Elem) ai1Elem.style.left = ai1Pos + 'px';
         if (ai2Elem) ai2Elem.style.left = ai2Pos + 'px';
 
+        // Dynamic galloping stride bounce tied to speed
+        let strideBounce = Math.sin(frameStep * 0.8) * 3;
+        let strideStretch = 1 + (Math.sin(frameStep * 1.6) * 0.04);
+        if (playerImg) playerImg.style.transform = `translateY(${strideBounce}px) scaleX(${strideStretch})`;
+        if (ai1Img) ai1Img.style.transform = `translateY(${-strideBounce}px) scaleX(${1 / strideStretch})`;
+        if (ai2Img) ai2Img.style.transform = `translateY(${strideBounce}px) scaleX(${strideStretch})`;
+
         if (playerPos >= trackWidth || ai1Pos >= trackWidth || ai2Pos >= trackWidth) {
             if (currentLap < totalLaps) {
                 currentLap++;
@@ -300,13 +307,13 @@ function startLiveRace() {
                 playerPos = 0;
                 ai1Pos = 0;
                 ai2Pos = 0;
+                frameStep = 0;
             } else {
                 clearInterval(raceInterval);
 
-                // Stop sprinting animation
-                if (playerElem) playerElem.classList.remove('is-galloping');
-                if (ai1Elem) ai1Elem.classList.remove('is-galloping');
-                if (ai2Elem) ai2Elem.classList.remove('is-galloping');
+                if (playerImg) playerImg.style.transform = 'none';
+                if (ai1Img) ai1Img.style.transform = 'none';
+                if (ai2Img) ai2Img.style.transform = 'none';
 
                 let prizeGold = 300 + (active.stars * 150);
                 let prizeGems = 2 + Math.floor(active.stars / 2);
@@ -324,6 +331,5 @@ function startLiveRace() {
         }
     }, 30);
 }
-
 
 updateUI();
