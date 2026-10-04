@@ -8,12 +8,11 @@ let gameData = {
     ]
 };
 
-// Exact animation frame files from your project folder
-const frameFiles = ["3903_2.png", "3905_2.png", "3906_2.png", "3907_2.png", "3909_2.png"];[span_0](start_span)[span_0](end_span)
+// Exact animation frame files from your project folder[span_1](start_span)[span_1](end_span)
+const frameFiles = ["3903_2.png", "3905_2.png", "3906_2.png", "3907_2.png", "3909_2.png"];
 
 let tintedFramesCache = {};
 
-// Load frames with a safe fallback to raw filenames if canvas security blocks local file access
 function loadTintedFrames(hexColor, callback) {
     if (tintedFramesCache[hexColor]) {
         callback(tintedFramesCache[hexColor]);
@@ -38,7 +37,6 @@ function loadTintedFrames(hexColor, callback) {
                 const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imgData.data;
                 
-                // Simple color tinting pass
                 let bigint = parseInt(hexColor.replace("#", ""), 16);
                 let targetR = (bigint >> 16) & 255;
                 let targetG = (bigint >> 8) & 255;
@@ -56,7 +54,7 @@ function loadTintedFrames(hexColor, callback) {
                 ctx.putImageData(imgData, 0, 0);
                 tintedArray[index] = canvas.toDataURL();
             } catch (e) {
-                // Fallback to raw image path if canvas security blocks local file reading
+                // Fallback to raw filenames if local canvas restrictions apply
                 tintedArray[index] = filename;
             }
             
@@ -68,7 +66,6 @@ function loadTintedFrames(hexColor, callback) {
         };
 
         img.onerror = () => {
-            // Fallback if image fails to load entirely
             tintedArray[index] = filename;
             loadedCount++;
             if (loadedCount === frameFiles.length) {
@@ -88,7 +85,7 @@ function updateUI() {
     }
 
     document.getElementById('horse-name-display').innerText = active.name;
-    document.getElementById('horse-meta-display').innerHTML = `${active.gender} | ${active.breed} | <span class="hex-code-label">${active.coatName} (${active.hex})</span>`;
+    document.getElementById('horse-meta-display').innerHTML = `${active.gender} | ${active.breed} | <span style="color:var(--accent-gold);">${active.coatName} (${active.hex})</span>`;
     
     document.getElementById('active-stars').innerHTML = `<span class="grade-badge">Grade ${active.stars}★</span>`;
     document.getElementById('power-display').innerText = active.power;
@@ -267,7 +264,7 @@ function startLiveRace() {
     
     let trackContainer = document.getElementById('race-track');
     if (!trackContainer) return;
-    let trackWidth = trackContainer.offsetWidth - 60;
+    let trackWidth = trackContainer.offsetWidth - 80;
     
     let playerPos = 0;
     let ai1Pos = 0;
@@ -349,4 +346,3 @@ function startLiveRace() {
 }
 
 updateUI();
-                        
