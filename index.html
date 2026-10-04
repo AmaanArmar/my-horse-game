@@ -4,148 +4,143 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rival Stars - Stable & Racing</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="game-container">
-        <!-- Top Currency Bar -->
-        <div class="header-bar">
-            <h2>Rival Stars</h2>
-            <div class="currencies">
-                <span>🪙 <span id="gold-display">550</span></span>
-                <span>💎 <span id="diamond-display">58</span></span>
+        <!-- Header -->
+        <header class="game-header">
+            <h1>Rival Stars</h1>
+            <div class="currency-box">
+                <span id="gold-display">🪙 550</span>
+                <span id="diamond-display">💎 58</span>
             </div>
-        </div>
+        </header>
 
         <!-- Navigation Tabs -->
-        <div class="nav-tabs">
+        <nav class="nav-tabs">
             <button class="nav-tab active" onclick="switchTab('stable')">Stable</button>
             <button class="nav-tab" onclick="switchTab('breed')">Breed</button>
             <button class="nav-tab" onclick="switchTab('care')">Care</button>
             <button class="nav-tab" onclick="switchTab('train')">Train</button>
             <button class="nav-tab" onclick="switchTab('race')">Race</button>
-        </div>
+        </nav>
 
-        <!-- TAB 1: STABLE -->
-        <div id="stable-tab" class="tab-pane active">
-            <div class="active-horse-card">
-                <div class="star-rating" id="active-stars">★ (1 Star)</div>
-                <div class="horse-visual-container">
-                    <img id="horse-image-display" src="3903_2.png" alt="Active Horse">
+        <!-- STABLE TAB -->
+        <section id="stable-tab" class="tab-pane active">
+            <div class="horse-showcase">
+                <div id="active-stars" style="margin-bottom: 6px;"></div>
+                <div class="horse-wrapper">
+                    <img id="horse-image-display" src="" alt="Active Horse">
                 </div>
-                <h3 id="horse-name-display">Misty</h3>
-                <p id="horse-meta-display">Mare | Arabian | WHITE</p>
+                <div class="horse-info">
+                    <h2 id="horse-name-display"></h2>
+                    <p id="horse-meta-display"></p>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="value" id="power-display">100</div>
+                    <div class="label">Power</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="energy-display">100</div>
+                    <div class="label">Energy</div>
+                </div>
+            </div>
+
+            <h3 style="font-size: 0.95rem; margin-bottom: 8px;">Your Stable Inventory</h3>
+            <div id="stable-inventory" class="stable-inventory"></div>
+
+            <button class="btn-primary" onclick="buyRandomHorse()">Buy Random Horse (🪙 500)</button>
+        </section>
+
+        <!-- BREED TAB -->
+        <section id="breed-tab" class="tab-pane">
+            <div class="horse-showcase" style="padding: 15px; text-align: left;">
+                <h3 style="font-size: 1rem; color: var(--accent-gold); margin-bottom: 6px;">Breeding Barn</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Pair 1 Stallion + 1 Mare. 60% chance same tier, 40% chance tier-up!</p>
                 
-                <div class="stats-row">
-                    <div class="stat-box">
-                        <span id="power-display">100</span>
-                        <small>Power</small>
-                    </div>
-                    <div class="stat-box">
-                        <span id="energy-display">95</span>
-                        <small>Energy</small>
-                    </div>
-                </div>
-            </div>
-
-            <h3>Your Stable Inventory</h3>
-            <div id="stable-inventory" class="inventory-list"></div>
-
-            <button class="action-btn" onclick="buyRandomHorse()">Buy Random Horse (🪙 500)</button>
-        </div>
-
-        <!-- TAB 2: BREED -->
-        <div id="breed-tab" class="tab-pane">
-            <div class="info-card">
-                <h3>Breeding Barn</h3>
-                <p>Pair 1 Stallion + 1 Mare. 60% chance same tier, 40% chance tier-up!</p>
-            </div>
-            
-            <div class="form-group">
-                <label>Choose Stallion:</label>
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Choose Stallion:</label>
                 <select id="stallion-select"></select>
-            </div>
 
-            <div class="form-group">
-                <label>Choose Mare:</label>
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Choose Mare:</label>
                 <select id="mare-select"></select>
-            </div>
 
-            <div class="info-card" style="text-align: center;">
-                <p>🧬 Inherits coat color from parents & rolls for star tier upgrade.</p>
-                <button class="action-btn gold-accent" onclick="breedHorses()">Breed Pair (💎 5 Diamonds)</button>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px;">🧬 Inherits coat color from parents & rolls for star tier upgrade.</p>
+                <button class="btn-primary" onclick="breedHorses()">Breed Pair (💎 5 Diamonds)</button>
             </div>
-        </div>
+        </section>
 
-        <!-- TAB 3: CARE -->
-        <div id="care-tab" class="tab-pane">
-            <h3>Horse Care & Maintenance</h3>
-            <p>Keep your active horse well-fed and rested before heading to races!</p>
-            
-            <div class="care-actions">
-                <div class="care-card">
-                    <h4>🍎 Feed Horse</h4>
-                    <p>Restores 25 Energy</p>
-                    <button class="action-btn" onclick="careForHorse('feed')">Feed (🪙 50)</button>
+        <!-- CARE TAB -->
+        <section id="care-tab" class="tab-pane">
+            <div class="horse-showcase" style="padding: 15px; text-align: left;">
+                <h3 style="font-size: 1rem; color: var(--accent-gold); margin-bottom: 6px;">Horse Care & Maintenance</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Keep your active horse well-fed and rested before heading to races!</p>
+                
+                <div style="background: #121215; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                    <strong>🍎 Feed Horse</strong>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin: 4px 0 8px 0;">Restores 25 Energy</p>
+                    <button class="btn-primary" onclick="careForHorse('feed')" style="padding: 8px;">Feed (🪙 50)</button>
                 </div>
-                <div class="care-card">
-                    <h4>💤 Full Stable Rest</h4>
-                    <p>Restores Energy to 100%</p>
-                    <button class="action-btn" onclick="careForHorse('rest')">Rest (🪙 100)</button>
+
+                <div style="background: #121215; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px;">
+                    <strong>💤 Full Stable Rest</strong>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin: 4px 0 8px 0;">Restores Energy to 100%</p>
+                    <button class="btn-primary" onclick="careForHorse('rest')" style="padding: 8px;">Rest (🪙 100)</button>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- TAB 4: TRAIN -->
-        <div id="train-tab" class="tab-pane">
-            <h3>Attribute Training</h3>
-            <p>Boost your active horse's individual racing stats (Cost: 🪙 150 each)</p>
-            
-            <div class="training-grid">
-                <button class="train-btn" onclick="trainHorseStat('speed')">⚡ Train Speed</button>
-                <button class="train-btn" onclick="trainHorseStat('stamina')">❤️ Train Stamina</button>
-                <button class="train-btn" onclick="trainHorseStat('acceleration')">🚀 Train Acceleration</button>
-                <button class="train-btn" onclick="trainHorseStat('agility')">🍂 Train Agility</button>
-                <button class="train-btn" onclick="trainHorseStat('jump')">🏇 Train Jump</button>
+        <!-- TRAIN TAB -->
+        <section id="train-tab" class="tab-pane">
+            <div class="horse-showcase" style="padding: 15px; text-align: left;">
+                <h3 style="font-size: 1rem; color: var(--accent-gold); margin-bottom: 6px;">Attribute Training</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">Boost your active horse's individual racing stats (Cost: 🪙 150 each)</p>
+                
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <button class="btn-primary" onclick="trainHorseStat('speed')" style="padding: 10px;">⚡ Train Speed</button>
+                    <button class="btn-primary" onclick="trainHorseStat('stamina')" style="padding: 10px;">❤️ Train Stamina</button>
+                    <button class="btn-primary" onclick="trainHorseStat('acceleration')" style="padding: 10px;">🚀 Train Acceleration</button>
+                    <button class="btn-primary" onclick="trainHorseStat('agility')" style="padding: 10px;">🍃 Train Agility</button>
+                    <button class="btn-primary" onclick="trainHorseStat('jump')" style="padding: 10px;">🐎 Train Jump</button>
+                </div>
             </div>
-        </div>
+        </section>
 
-        <!-- TAB 5: RACE ARENA -->
-        <div id="race-tab" class="tab-pane">
-            <h3>Championship Race Track</h3>
-            <p>Race against AI rivals across 3 intense laps!</p>
-            
-            <div id="race-arena">
-                <div id="lap-indicator">Lap 1 / 3</div>
-                <div id="race-track">
-                    <!-- Lane 1: Player -->
-                    <div class="race-lane">
-                        <span class="lane-label">You</span>
-                        <div class="racer-container" id="player-racer">
-                            <img class="racer-horse-img" id="player-img" src="" alt="Player Horse">
-                        </div>
+        <!-- RACE TAB -->
+        <section id="race-tab" class="tab-pane">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="font-size: 1rem; color: var(--accent-gold);">Live Race Arena</h3>
+                <span id="lap-indicator" style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted);">Lap 1 / 3</span>
+            </div>
+
+            <div class="race-track-container" id="race-track">
+                <!-- Lane 1: Player -->
+                <div class="racer-lane">
+                    <div class="racer-horse" id="player-racer">
+                        <img id="player-img" src="" alt="Player Horse">
                     </div>
-                    <!-- Lane 2: AI Rival 1 -->
-                    <div class="race-lane">
-                        <span class="lane-label">Thunder (AI)</span>
-                        <div class="racer-container" id="ai1-racer">
-                            <img class="racer-horse-img" id="ai1-img" src="4018.png" alt="AI Rival 1">
-                        </div>
+                </div>
+                <!-- Lane 2: AI 1 -->
+                <div class="racer-lane">
+                    <div class="racer-horse" id="ai1-racer">
+                        <img id="ai1-img" src="" alt="AI Horse 1">
                     </div>
-                    <!-- Lane 3: AI Rival 2 -->
-                    <div class="race-lane">
-                        <span class="lane-label">Storm (AI)</span>
-                        <div class="racer-container" id="ai2-racer">
-                            <img class="racer-horse-img" id="ai2-img" src="3906_2.png" alt="AI Rival 2">
-                        </div>
+                </div>
+                <!-- Lane 3: AI 2 -->
+                <div class="racer-lane">
+                    <div class="racer-horse" id="ai2-racer">
+                        <img id="ai2-img" src="" alt="AI Horse 2">
                     </div>
                 </div>
             </div>
 
-            <button class="action-btn race-start-btn" onclick="startLiveRace()">🏁 Start Championship Race!</button>
-        </div>
+            <button class="btn-primary" onclick="startLiveRace()">🏁 Start Live Race</button>
+        </section>
     </div>
 
-    <script src="script.js?v=2"></script>
+    <script src="script.js"></script>
 </body>
 </html>
