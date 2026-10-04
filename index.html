@@ -76,12 +76,12 @@
 
         .nav-tab {
             flex: 1;
-            padding: 12px 10px;
+            padding: 12px 6px;
             background: transparent;
             border: none;
             color: var(--text-muted);
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             cursor: pointer;
             text-align: center;
             transition: all 0.2s ease;
@@ -115,7 +115,6 @@
             margin-bottom: 15px;
         }
 
-        /* Updated with CSS Masking for exact body color tinting */
         .horse-wrapper {
             position: relative;
             display: inline-block;
@@ -136,7 +135,7 @@
         }
 
         .horse-wrapper img {
-            display: none; /* Hidden since background-color fills through mask */
+            display: none;
         }
 
         .horse-info h2 {
@@ -152,27 +151,27 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
         .stat-card {
             background: #121215;
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 10px;
+            border-radius: 8px;
+            padding: 8px;
             text-align: center;
         }
 
         .stat-card .value {
-            font-size: 1.15rem;
+            font-size: 1rem;
             font-weight: 700;
             color: var(--accent-gold);
         }
 
         .stat-card .label {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -182,7 +181,7 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            max-height: 140px;
+            max-height: 120px;
             overflow-y: auto;
             margin-bottom: 12px;
         }
@@ -275,7 +274,6 @@
             align-items: center;
         }
 
-        /* Racer horse styled with mask matching body color */
         .racer-horse {
             position: absolute;
             left: 0px;
@@ -300,6 +298,17 @@
         .racer-horse img {
             display: none;
         }
+
+        .training-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #121215;
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body>
@@ -317,6 +326,7 @@
         <!-- Navigation Tabs -->
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="switchTab('stable', this)">Stable</button>
+            <button class="nav-tab" onclick="switchTab('training', this)">Training</button>
             <button class="nav-tab" onclick="switchTab('race', this)">Race Track</button>
             <button class="nav-tab" onclick="switchTab('breeding', this)">Breeding</button>
         </div>
@@ -341,8 +351,12 @@
                     <div class="label">Energy</div>
                 </div>
                 <div class="stat-card">
-                    <div class="value" id="speed-display">12</div>
-                    <div class="label">Speed Rating</div>
+                    <div class="value" id="avg-stat-display">20</div>
+                    <div class="label">Avg Aspect</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="speed-rating-display">12</div>
+                    <div class="label">Race Speed</div>
                 </div>
             </div>
 
@@ -354,7 +368,44 @@
             <div id="stable-inventory" class="stable-inventory"></div>
         </div>
 
-        <!-- TAB 2: RACE TRACK -->
+        <!-- TAB 2: TRAINING STUDIO -->
+        <div id="training-tab" class="tab-pane">
+            <h3 style="font-size: 1rem; margin-bottom: 4px;">Aspect Training</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Train aspects to boost overall potential (Max <span id="max-cap-label">100</span> per aspect).</p>
+            
+            <div class="training-row">
+                <div>
+                    <strong>Speed</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);" id="stat-speed-val">20 / 100</span>
+                </div>
+                <button onclick="trainAspect('speed')" style="padding: 6px 12px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
+            </div>
+            <div class="training-row">
+                <div>
+                    <strong>Stamina</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);" id="stat-stamina-val">20 / 100</span>
+                </div>
+                <button onclick="trainAspect('stamina')" style="padding: 6px 12px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
+            </div>
+            <div class="training-row">
+                <div>
+                    <strong>Agility</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);" id="stat-agility-val">20 / 100</span>
+                </div>
+                <button onclick="trainAspect('agility')" style="padding: 6px 12px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
+            </div>
+            <div class="training-row">
+                <div>
+                    <strong>Acceleration</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);" id="stat-accel-val">20 / 100</span>
+                </div>
+                <button onclick="trainAspect('accel')" style="padding: 6px 12px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
+            </div>
+            <div class="training-row">
+                <div>
+                    <strong>Spirit</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);" id="stat-spirit-val">20 / 100</span>
+                </div>
+                <button onclick="trainAspect('spirit')" style="padding: 6px 12px; background: var(--accent-gold); border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">Train (🪙 30)</button>
+            </div>
+        </div>
+
+        <!-- TAB 3: RACE TRACK -->
         <div id="race-tab" class="tab-pane">
             <div id="lap-indicator" style="font-size: 0.85rem; font-weight: 700; color: var(--accent-gold); margin-bottom: 8px;">Lap 1 / 3</div>
             <div id="race-track" class="race-track-container">
@@ -371,10 +422,10 @@
             <button class="btn-primary" onclick="startLiveRace()">Start Live Race!</button>
         </div>
 
-        <!-- TAB 3: BREEDING STUDIO -->
+        <!-- TAB 4: BREEDING STUDIO -->
         <div id="breeding-tab" class="tab-pane">
             <h3 style="font-size: 1rem; margin-bottom: 6px;">Genetics Studio</h3>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Select parents to breed a foal with combined coats.</p>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Select parents to breed a foal.</p>
             
             <label style="font-size: 0.8rem;">Stallion:</label>
             <select id="stallion-select"></select>
@@ -402,12 +453,16 @@
             diamonds: 65,
             activeHorseIndex: 0,
             horses: [
-                { name: "Misty", gender: "Mare", breed: "Arabian", stars: 1, energy: 100, speed: 12, coat: coatLibrary[2] },
-                { name: "Shadow", gender: "Stallion", breed: "Thoroughbred", stars: 1, energy: 100, speed: 13, coat: coatLibrary[5] }
+                { name: "Misty", gender: "Mare", breed: "Arabian", stars: 1, energy: 100, stats: { speed: 20, stamina: 20, agility: 20, accel: 20, spirit: 20 }, coat: coatLibrary[2] },
+                { name: "Shadow", gender: "Stallion", breed: "Thoroughbred", stars: 2, energy: 100, stats: { speed: 40, stamina: 35, agility: 40, accel: 38, spirit: 42 }, coat: coatLibrary[5] }
             ]
         };
 
         const frameFiles = ["3903_2.png", "3905_2.png", "3906_2.png", "3907_2.png", "3909_2.png"];
+
+        function getStatCap(stars) {
+            return stars * 100;
+        }
 
         function updateUI() {
             try {
@@ -421,20 +476,27 @@
                 document.getElementById('active-stars').innerText = `Grade ${active.stars}★`;
                 document.getElementById('active-coat-name').innerText = active.coat.name;
                 document.getElementById('energy-display').innerText = active.energy;
-                document.getElementById('speed-display').innerText = active.speed;
 
-                // Update active showcase container color and mask
+                let maxCap = getStatCap(active.stars);
+                document.getElementById('max-cap-label').innerText = maxCap;
+
+                let avgStats = Math.floor((active.stats.speed + active.stats.stamina + active.stats.agility + active.stats.accel + active.stats.spirit) / 5);
+                document.getElementById('avg-stat-display').innerText = avgStats;
+                document.getElementById('speed-rating-display').innerText = active.stats.speed;
+
+                // Training labels
+                document.getElementById('stat-speed-val').innerText = `${active.stats.speed} / ${maxCap}`;
+                document.getElementById('stat-stamina-val').innerText = `${active.stats.stamina} / ${maxCap}`;
+                document.getElementById('stat-agility-val').innerText = `${active.stats.agility} / ${maxCap}`;
+                document.getElementById('stat-accel-val').innerText = `${active.stats.accel} / ${maxCap}`;
+                document.getElementById('stat-spirit-val').innerText = `${active.stats.spirit} / ${maxCap}`;
+
                 let activeBox = document.getElementById('active-horse-wrapper');
-                if (activeBox) {
-                    activeBox.style.setProperty('--horse-color', active.coat.hex);
-                }
+                if (activeBox) activeBox.style.setProperty('--horse-color', active.coat.hex);
 
                 let playerRacer = document.getElementById('player-racer');
-                if (playerRacer) {
-                    playerRacer.style.setProperty('--horse-color', active.coat.hex);
-                }
+                if (playerRacer) playerRacer.style.setProperty('--horse-color', active.coat.hex);
 
-                // Render inventory
                 let inventoryHtml = "";
                 gameData.horses.forEach((h, index) => {
                     inventoryHtml += `
@@ -443,95 +505,8 @@
                                 <div class="horse-wrapper" style="width: 36px; height: 36px; --horse-color: ${h.coat.hex}; margin-bottom: 0;"></div>
                                 <div>
                                     <strong style="font-size: 0.85rem;">${h.name}</strong><br>
-                                    <span style="font-size: 0.7rem; color: var(--text-muted);">${h.coat.name}</span>
+                                    <span style="font-size: 0.7rem; color: var::text-muted;">${h.stars}★ | ${h.coat.name}</span>
                                 </div>
                             </div>
                             <span style="font-size: 0.75rem; color: ${index === gameData.activeHorseIndex ? 'var(--accent-gold)' : 'var(--text-muted)'}; font-weight: 700;">
-                                ${index === gameData.activeHorseIndex ? 'Active' : 'Select'}
-                            </span>
-                        </div>`;
-                });
-                document.getElementById('stable-inventory').innerHTML = inventoryHtml;
-
-                // Breeding dropdowns
-                let stallionSelect = document.getElementById('stallion-select');
-                let mareSelect = document.getElementById('mare-select');
-                if (stallionSelect && mareSelect) {
-                    stallionSelect.innerHTML = "";
-                    mareSelect.innerHTML = "";
-                    let stallions = gameData.horses.filter(h => h.gender === "Stallion");
-                    let mares = gameData.horses.filter(h => h.gender === "Mare");
-
-                    stallionSelect.innerHTML = stallions.length === 0 ? `<option value="">-- None --</option>` : stallions.map(s => `<option value="${gameData.horses.indexOf(s)}">${s.name} (${s.coat.name})</option>`).join('');
-                    mareSelect.innerHTML = mares.length === 0 ? `<option value="">-- None --</option>` : mares.map(m => `<option value="${gameData.horses.indexOf(m)}">${m.name} (${m.coat.name})</option>`).join('');
-                }
-            } catch (e) {
-                console.error("UI Error:", e);
-            }
-        }
-
-        function switchTab(tabId, btn) {
-            document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId + '-tab').classList.add('active');
-            if (btn) btn.classList.add('active');
-        }
-
-        function selectActiveHorse(index) {
-            gameData.activeHorseIndex = index;
-            updateUI();
-        }
-
-        function careForHorse(type) {
-            let active = gameData.horses[gameData.activeHorseIndex];
-            if (type === 'feed') {
-                if (gameData.gold < 50) { alert("Need 🪙 50 Gold!"); return; }
-                gameData.gold -= 50;
-                active.energy = Math.min(100, active.energy + 25);
-            } else if (type === 'rest') {
-                if (gameData.gold < 100) { alert("Need 🪙 100 Gold!"); return; }
-                gameData.gold -= 100;
-                active.energy = 100;
-            }
-            updateUI();
-        }
-
-        function buyRandomHorse() {
-            if (gameData.gold < 500) { alert("Need 🪙 500 Gold!"); return; }
-            gameData.gold -= 500;
-            let names = ["Thunder", "Blaze", "Storm", "Ghost", "Apollo"];
-            let newHorse = {
-                name: names[Math.floor(Math.random() * names.length)],
-                gender: Math.random() < 0.5 ? "Stallion" : "Mare",
-                breed: "Thoroughbred",
-                stars: 1,
-                energy: 100,
-                speed: 13,
-                coat: coatLibrary[Math.floor(Math.random() * coatLibrary.length)]
-            };
-            gameData.horses.push(newHorse);
-            gameData.activeHorseIndex = gameData.horses.length - 1;
-            updateUI();
-            alert(`New horse ${newHorse.name} joined your stable!`);
-        }
-
-        function breedHorses() {
-            let sSelect = document.getElementById('stallion-select');
-            let mSelect = document.getElementById('mare-select');
-            if (!sSelect.value || !mSelect.value) { alert("Select both a Stallion and Mare!"); return; }
-            
-            if (gameData.diamonds < 5) { alert("Need 💎 5 Diamonds!"); return; }
-            gameData.diamonds -= 5;
-
-            let sire = gameData.horses[sSelect.value];
-            let newFoal = {
-                name: "Foal",
-                gender: Math.random() < 0.5 ? "Stallion" : "Mare",
-                breed: sire.breed,
-                stars: sire.stars,
-                energy: 100,
-                speed: 14,
-                coat: sire.coat
-            };
-            gameData.horses.push(newFoal);
-            gameData.active
+        
