@@ -210,6 +210,12 @@ body {
     transform: scale(0.98);
 }
 
+.btn-sell {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
 .btn-slot {
     background: linear-gradient(135deg, #38bdf8, #0ea5e9);
     color: #000;
