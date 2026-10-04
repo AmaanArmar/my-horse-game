@@ -8,29 +8,12 @@ let gameData = {
     ]
 };
 
-function hexToRgb(hex) {
-    let bigint = parseInt(hex.replace("#", ""), 16);
-    let r = (bigint >> 16) & 255;
-    let g = (bigint >> 8) & 255;
-    let b = bigint & 255;
-    return { r, g, b };
-}
-
-function rgbToHex(r, g, b) {
-    return "#" + [r, g, b].map(x => {
-        let hex = Math.round(Math.max(0, Math.min(255, x))).toString(16);
-        return hex.length === 1 ? "0" + hex : hex;
-    }).join("");
-}
-
-// Map specific frames to exact movement stages:
-// Index 0: Standing ("3903_2.png")
-// Index 1-2: Throttle / Acceleration ("3905_2.png", "3906_2.png")
-// Index 3-4: Full Sprint ("3907_2.png", "3909_2.png")
+// Exact animation frame files from your project folder
 const frameFiles = ["3903_2.png", "3905_2.png", "3906_2.png", "3907_2.png", "3909_2.png"];[span_0](start_span)[span_0](end_span)
 
 let tintedFramesCache = {};
 
+// Load frames with a safe fallback to raw filenames if canvas security blocks local file access
 function loadTintedFrames(hexColor, callback) {
     if (tintedFramesCache[hexColor]) {
         callback(tintedFramesCache[hexColor]);
@@ -42,42 +25,51 @@ function loadTintedFrames(hexColor, callback) {
 
     frameFiles.forEach((filename, index) => {
         const img = new Image();
-        img.crossOrigin = "anonymous";
         img.src = filename;
+        
         img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            
-            ctx.drawImage(img, 0, 0);
-            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const data = imgData.data;
-            const targetRgb = hexToRgb(hexColor);
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                
+                ctx.drawImage(img, 0, 0);
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imgData.data;
+                
+                // Simple color tinting pass
+                let bigint = parseInt(hexColor.replace("#", ""), 16);
+                let targetR = (bigint >> 16) & 255;
+                let targetG = (bigint >> 8) & 255;
+                let targetB = bigint & 255;
 
-            for (let i = 0; i < data.length; i += 4) {
-                let a = data[i + 3];
-                if (a > 20) { 
-                    let r = data[i];
-                    let g = data[i + 1];
-                    let b = data[i + 2];
-                    
-                    let luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-                    data[i] = Math.round(targetRgb.r * luminance * 0.9 + r * 0.1);
-                    data[i + 1] = Math.round(targetRgb.g * luminance * 0.9 + g * 0.1);
-                    data[i + 2] = Math.round(targetRgb.b * luminance * 0.9 + b * 0.1);
+                for (let i = 0; i < data.length; i += 4) {
+                    if (data[i + 3] > 20) { 
+                        let r = data[i], g = data[i + 1], b = data[i + 2];
+                        let luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                        data[i] = Math.round(targetR * luminance * 0.9 + r * 0.1);
+                        data[i + 1] = Math.round(targetG * luminance * 0.9 + g * 0.1);
+                        data[i + 2] = Math.round(targetB * luminance * 0.9 + b * 0.1);
+                    }
                 }
+                ctx.putImageData(imgData, 0, 0);
+                tintedArray[index] = canvas.toDataURL();
+            } catch (e) {
+                // Fallback to raw image path if canvas security blocks local file reading
+                tintedArray[index] = filename;
             }
-            ctx.putImageData(imgData, 0, 0);
-            tintedArray[index] = canvas.toDataURL();
+            
             loadedCount++;
-
             if (loadedCount === frameFiles.length) {
                 tintedFramesCache[hexColor] = tintedArray;
                 callback(tintedArray);
             }
         };
+
         img.onerror = () => {
+            // Fallback if image fails to load entirely
+            tintedArray[index] = filename;
             loadedCount++;
             if (loadedCount === frameFiles.length) {
                 callback(tintedArray);
@@ -105,7 +97,7 @@ function updateUI() {
     const activeImg = document.getElementById('horse-image-display');
     if (activeImg) {
         loadTintedFrames(active.hex, (frames) => {
-            if (frames && frames[0]) activeImg.src = frames[0]; // Show standing frame in stable
+            if (frames && frames[0]) activeImg.src = frames[0];
         });
     }
 
@@ -233,13 +225,6 @@ function breedHorses() {
     let dam = gameData.horses[mIndex];
     gameData.diamonds -= 5;
 
-    let rgbSire = hexToRgb(sire.hex);
-    let rgbDam = hexToRgb(dam.hex);
-    let blendR = Math.round((rgbSire.r + rgbDam.r) / 2);
-    let blendG = Math.round((rgbSire.g + rgbDam.g) / 2);
-    let blendB = Math.round((rgbSire.b + rgbDam.b) / 2);
-    let inheritedHex = rgbToHex(blendR, blendG, blendB);
-
     let baseStars = Math.max(sire.stars, dam.stars);
     let upgraded = Math.random() < 0.40 && baseStars < 10;
     let newStars = upgraded ? baseStars + 1 : baseStars;
@@ -249,8 +234,8 @@ function breedHorses() {
         name: foalNames[Math.floor(Math.random() * foalNames.length)],
         gender: Math.random() < 0.5 ? "Stallion" : "Mare",
         breed: sire.breed,
-        hex: inheritedHex,
-        coatName: "Hybrid Amber Blend",
+        hex: sire.hex,
+        coatName: "Hybrid Blend",
         stars: newStars,
         power: Math.round(((sire.power + dam.power) / 2) + (newStars * 15)),
         energy: 100,
@@ -304,8 +289,7 @@ function startLiveRace() {
                 raceInterval = setInterval(() => {
                     frameStep++;
                     
-                    // Throttle and acceleration curve from standing position
-                    let throttleFactor = Math.min(1.4, 0.3 + (frameStep * 0.012));
+                    let throttleFactor = Math.min(1.4, 0.4 + (frameStep * 0.012));
 
                     let playerSpeed = (1.2 + (active.stats.speed * 0.08) + (Math.random() * 0.5)) * throttleFactor;
                     let ai1Speed = (1.5 + (Math.random() * 0.7)) * throttleFactor;
@@ -319,32 +303,17 @@ function startLiveRace() {
                     if (ai1Elem) ai1Elem.style.left = ai1Pos + 'px';
                     if (ai2Elem) ai2Elem.style.left = ai2Pos + 'px';
 
-                    // STATE-DRIVEN FRAME MAPPING:
-                    // - At the start line (frameStep < 8): Show standing frame (Index 0: "3903_2.png")
-                    // - During throttle / acceleration (8 <= frameStep < 25): Cycle through throttle frames (Index 1-2: "3905_2.png", "3906_2.png")
-                    // - During full sprint (frameStep >= 25): Cycle through high-speed sprint frames (Index 3-4: "3907_2.png", "3909_2.png")
-                    function getCorrectFrameIndex(step) {
-                        if (step < 8) {
-                            return 0; // Standing
-                        } else if (step < 25) {
-                            return 1 + (Math.floor(step / 4) % 2); // Throttle (frames 1 & 2)
-                        } else {
-                            return 3 + (Math.floor(step / 3) % 2); // Full Sprint (frames 3 & 4)
-                        }
-                    }
+                    // Direct sequential frame loop using all 5 frames smoothly
+                    let frameIndex = Math.floor(frameStep / 4) % frameFiles.length;
 
-                    let pFrameIdx = getCorrectFrameIndex(frameStep);
-                    let ai1FrameIdx = getCorrectFrameIndex(frameStep);
-                    let ai2FrameIdx = getCorrectFrameIndex(frameStep);
-
-                    if (playerImg && playerFrames && playerFrames[pFrameIdx]) {
-                        playerImg.src = playerFrames[pFrameIdx];
+                    if (playerImg && playerFrames && playerFrames[frameIndex]) {
+                        playerImg.src = playerFrames[frameIndex];
                     }
-                    if (ai1Img && ai1Frames && ai1Frames[ai1FrameIdx]) {
-                        ai1Img.src = ai1Frames[ai1FrameIdx];
+                    if (ai1Img && ai1Frames && ai1Frames[frameIndex]) {
+                        ai1Img.src = ai1Frames[frameIndex];
                     }
-                    if (ai2Img && ai2Frames && ai2Frames[ai2FrameIdx]) {
-                        ai2Img.src = ai2Frames[ai2FrameIdx];
+                    if (ai2Img && ai2Frames && ai2Frames[frameIndex]) {
+                        ai2Img.src = ai2Frames[frameIndex];
                     }
 
                     if (playerPos >= trackWidth || ai1Pos >= trackWidth || ai2Pos >= trackWidth) {
@@ -380,4 +349,4 @@ function startLiveRace() {
 }
 
 updateUI();
-                                
+                        
