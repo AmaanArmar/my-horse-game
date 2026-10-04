@@ -273,6 +273,11 @@ function startLiveRace() {
     if (ai1Img) createTintedHorseImage("#5e5854", (url) => { if (url) ai1Img.src = url; });
     if (ai2Img) createTintedHorseImage("#ffb703", (url) => { if (url) ai2Img.src = url; });
 
+    // Trigger sprinting animation
+    if (playerElem) playerElem.classList.add('is-galloping');
+    if (ai1Elem) ai1Elem.classList.add('is-galloping');
+    if (ai2Elem) ai2Elem.classList.add('is-galloping');
+
     if (raceInterval) clearInterval(raceInterval);
 
     raceInterval = setInterval(() => {
@@ -298,6 +303,11 @@ function startLiveRace() {
             } else {
                 clearInterval(raceInterval);
 
+                // Stop sprinting animation
+                if (playerElem) playerElem.classList.remove('is-galloping');
+                if (ai1Elem) ai1Elem.classList.remove('is-galloping');
+                if (ai2Elem) ai2Elem.classList.remove('is-galloping');
+
                 let prizeGold = 300 + (active.stars * 150);
                 let prizeGems = 2 + Math.floor(active.stars / 2);
                 gameData.gold += prizeGold;
@@ -314,5 +324,6 @@ function startLiveRace() {
         }
     }, 30);
 }
+
 
 updateUI();
