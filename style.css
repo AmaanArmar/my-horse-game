@@ -1,7 +1,6 @@
 :root {
     --bg-main: #0f0f12;
     --bg-card: #18181b;
-    --bg-card-hover: #222227;
     --accent-gold: #f59e0b;
     --accent-gold-hover: #d97706;
     --text-main: #f3f4f6;
@@ -14,6 +13,7 @@
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -69,12 +69,12 @@ body {
 
 .nav-tab {
     flex: 1;
-    padding: 12px 10px;
+    padding: 12px 6px;
     background: transparent;
     border: none;
     color: var(--text-muted);
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     cursor: pointer;
     text-align: center;
     transition: all 0.2s ease;
@@ -111,16 +111,19 @@ body {
 .horse-wrapper {
     position: relative;
     display: inline-block;
-    border-radius: 12px;
-    overflow: hidden;
+    width: 120px;
+    height: 120px;
     margin-bottom: 8px;
-    background: transparent;
+    background: #1e1e24;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
 }
 
-.horse-wrapper img {
-    max-width: 100%;
-    height: auto;
-    max-height: 130px;
+.horse-sprite {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
     display: block;
 }
 
@@ -137,27 +140,27 @@ body {
 
 .stats-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 15px;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
 }
 
 .stat-card {
     background: #121215;
     border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: 10px;
+    border-radius: 8px;
+    padding: 8px;
     text-align: center;
 }
 
 .stat-card .value {
-    font-size: 1.15rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--accent-gold);
 }
 
 .stat-card .label {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -167,7 +170,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-height: 140px;
+    max-height: 120px;
     overflow-y: auto;
     margin-bottom: 12px;
 }
@@ -182,6 +185,7 @@ body {
     align-items: center;
     transition: border-color 0.2s ease;
     color: var(--text-main);
+    cursor: pointer;
 }
 
 .stable-horse-item:hover {
@@ -194,21 +198,32 @@ body {
     color: #000;
     border: none;
     border-radius: 10px;
-    padding: 10px;
+    padding: 12px;
     font-weight: 700;
     font-size: 0.9rem;
     cursor: pointer;
-    transition: opacity 0.2s ease;
     box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+    margin-bottom: 8px;
 }
 
-.btn-primary:hover {
-    opacity: 0.9;
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+.btn-slot {
+    background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+    color: #000;
+}
+
+.btn-breed {
+    background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+    color: #000;
+    margin-top: 5px;
 }
 
 select, input {
     width: 100%;
-    padding: 8px 10px;
+    padding: 10px;
     background: #121215;
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -258,21 +273,62 @@ select, input {
     align-items: center;
 }
 
+.last-lane {
+    border-bottom: none;
+}
+
 .racer-horse {
     position: absolute;
     left: 0px;
     width: 38px;
     height: 38px;
-    border-radius: 6px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
 }
 
-.racer-horse img {
-    width: 34px;
-    height: auto;
-    display: block;
+.training-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #121215;
+    border: 1px solid var(--border-color);
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.btn-train {
+    padding: 8px 14px;
+    background: var(--accent-gold);
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #000;
+}
+
+.section-title {
+    font-size: 0.9rem;
+    margin: 15px 0 8px 0;
+    color: var(--text-muted);
+}
+
+.pane-title {
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.pane-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.lap-indicator {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent-gold);
+    margin-bottom: 8px;
+}
+
+.select-label {
+    font-size: 0.8rem;
 }
