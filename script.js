@@ -68,11 +68,17 @@ function updateUI() {
             playerImg.style.filter = active.coat.filter;
         }
 
-        let ai1Img = document.querySelector('.ai-sprite-1');
-        if (ai1Img) ai1Img.style.filter = coatLibrary[3].filter;
+        let ai1Img = document.getElementById('ai1-racer-img');
+        if (ai1Img) {
+            ai1Img.src = frameFiles[0];
+            ai1Img.style.filter = coatLibrary[3].filter;
+        }
 
-        let ai2Img = document.querySelector('.ai-sprite-2');
-        if (ai2Img) ai2Img.style.filter = coatLibrary[4].filter;
+        let ai2Img = document.getElementById('ai2-racer-img');
+        if (ai2Img) {
+            ai2Img.src = frameFiles[0];
+            ai2Img.style.filter = coatLibrary[4].filter;
+        }
 
         let inventoryHtml = "";
         gameData.horses.forEach((h, index) => {
@@ -201,9 +207,11 @@ function startLiveRace() {
     let playerElem = document.getElementById('player-racer');
     let playerImg = document.getElementById('player-racer-img');
     let ai1Elem = document.getElementById('ai1-racer');
+    let ai1Img = document.getElementById('ai1-racer-img');
     let ai2Elem = document.getElementById('ai2-racer');
-    let trackWidth = document.getElementById('race-track').offsetWidth - 45;
+    let ai2Img = document.getElementById('ai2-racer-img');
     
+    let trackWidth = document.getElementById('race-track').offsetWidth - 65;
     let playerPos = 0, ai1Pos = 0, ai2Pos = 0, currentLap = 1, frameStep = 0;
 
     let playerAvg = (active.stats.speed + active.stats.stamina + active.stats.agility + active.stats.accel + active.stats.spirit) / 5;
@@ -221,12 +229,15 @@ function startLiveRace() {
         if (ai1Elem) ai1Elem.style.left = ai1Pos + 'px';
         if (ai2Elem) ai2Elem.style.left = ai2Pos + 'px';
 
+        // Animate ALL horses (Player + AIs) through the running frame sequence
         let frameIntervalDivider = Math.max(2, Math.floor(6 / playerSpeedMultiplier));
-        let fIdx = Math.floor(frameStep / frameIntervalDivider) % frameFiles.length;
+        let playerFIdx = Math.floor(frameStep / frameIntervalDivider) % frameFiles.length;
+        let ai1FIdx = Math.floor((frameStep + 1) / 3) % frameFiles.length;
+        let ai2FIdx = Math.floor((frameStep + 2) / 3) % frameFiles.length;
         
-        if (playerImg) {
-            playerImg.src = frameFiles[fIdx];
-        }
+        if (playerImg) playerImg.src = frameFiles[playerFIdx];
+        if (ai1Img) ai1Img.src = frameFiles[ai1FIdx];
+        if (ai2Img) ai2Img.src = frameFiles[ai2FIdx];
 
         if (playerPos >= trackWidth || ai1Pos >= trackWidth || ai2Pos >= trackWidth) {
             if (currentLap < 3) {
@@ -241,6 +252,9 @@ function startLiveRace() {
                 playerElem.style.left = '0px';
                 if (ai1Elem) ai1Elem.style.left = '0px';
                 if (ai2Elem) ai2Elem.style.left = '0px';
+                if (playerImg) playerImg.src = frameFiles[0];
+                if (ai1Img) ai1Img.src = frameFiles[0];
+                if (ai2Img) ai2Img.src = frameFiles[0];
                 document.getElementById('lap-indicator').innerText = `Lap 1 / 3`;
                 updateUI();
             }
