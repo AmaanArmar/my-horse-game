@@ -8,7 +8,6 @@ let gameData = {
     ]
 };
 
-// Helper to convert HEX to RGB for genetic color blending
 function hexToRgb(hex) {
     let bigint = parseInt(hex.replace("#", ""), 16);
     let r = (bigint >> 16) & 255;
@@ -17,25 +16,12 @@ function hexToRgb(hex) {
     return { r, g, b };
 }
 
-// Helper to convert RGB back to HEX
 function rgbToHex(r, g, b) {
     return "#" + [r, g, b].map(x => {
         let hex = Math.round(Math.max(0, Math.min(255, x))).toString(16);
         return hex.length === 1 ? "0" + hex : hex;
     }).join("");
 }
-
-// Calibrated filter for natural brown, amber, and palomino tones
-function getCssFilterForHex(hex) {
-    let rgb = hexToRgb(hex);
-    let brightness = (rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114) / 255;
-    let hueShift = Math.round((rgb.r - rgb.g) * 0.4);
-    let saturation = rgb.r > rgb.b ? '400%' : '150%';
-    return `brightness(${Math.max(0.15, brightness * 1.1)}) sepia(0.9) saturate(${saturation}) hue-rotate(${hueShift}deg)`;
-}
-
-let animationInterval = null;
-let raceInterval = null;
 
 function updateUI() {
     document.getElementById('gold-display').innerText = gameData.gold;
@@ -55,19 +41,22 @@ function updateUI() {
 
     const activeImg = document.getElementById('horse-image-display');
     if (activeImg) {
-        activeImg.src = "3903_2.png"; // Base white horse template
-        activeImg.style.filter = getCssFilterForHex(active.hex);
+        activeImg.src = "3903_2.png";
+        // Apply direct background color container tinting for true color accuracy
+        activeImg.parentElement.style.backgroundColor = active.hex;
+        activeImg.style.opacity = "0.95";
         activeImg.classList.add('tinted-horse');
     }
 
     let inventoryHtml = "";
     gameData.horses.forEach((h, index) => {
         inventoryHtml += `
-            <div class="stable-horse-item" onclick="selectActiveHorse(${index})" style="cursor:pointer;">
+            <div class="stable-horse-item" onclick="selectActiveHorse(${index})" style="cursor:pointer; display: flex; align-items: center; gap: 10px;">
+                <div style="width: 16px; height: 16px; background-color: ${h.hex}; border-radius: 50%; border: 1px solid #fff;"></div>
                 <div>
                     <strong>${h.name}</strong> <span style="font-size:0.70rem; color:var(--text-muted);">(${h.stars}★ - ${h.hex})</span>
                 </div>
-                <div style="font-size: 0.8rem; color: var(--accent-gold);">
+                <div style="font-size: 0.8rem; color: var(--accent-gold); margin-left: auto;">
                     ${index === gameData.activeHorseIndex ? '✓ Active' : 'Select'}
                 </div>
             </div>`;
@@ -122,10 +111,10 @@ function careForHorse(actionType) {
 
 function trainHorseStat(statName) {
     let active = gameData.horses[gameData.activeHorseIndex];
-    let statCap = active.stars * 100; // 1-star = 100 cap, up to 10-star = 1000 cap!
+    let statCap = active.stars * 100;
     
     if (active.stats[statName] >= statCap) {
-        alert(`${active.name} has reached the max cap (${statCap}) for ${statName.toUpperCase()} at ${active.stars} Stars! Breed a higher star tier to continue training.`);
+        alert(`${active.name} has reached the max cap (${statCap}) for ${statName.toUpperCase()} at ${active.stars} Stars!`);
         return;
     }
 
@@ -142,8 +131,6 @@ function buyRandomHorse() {
     if (gameData.gold < 500) { alert("Need 🪙 500 Gold to buy a random horse!"); return; }
     gameData.gold -= 500;
     let names = ["Thunder", "Blaze", "Storm", "Ghost", "Apollo", "Titan", "Amber Flash", "Golden Sun"];
-    
-    // Expanded color palette including Amber, Golden Yellow-Orange, Chestnut, and Rich Browns
     let starterCoats = [
         { hex: "#8b4513", name: "Classic Brown" },
         { hex: "#ad754c", name: "Chestnut" },
@@ -215,7 +202,7 @@ function breedHorses() {
     gameData.horses.push(newFoal);
     gameData.activeHorseIndex = gameData.horses.length - 1;
     updateUI();
-    alert(upgraded ? `🎉 Foal ${newFoal.name} ranked up to Grade ${newStars}★! Color: ${inheritedHex}` : `Foal ${newFoal.name} born at Grade ${newStars}★ with color ${inheritedHex}!`);
+    alert(upgraded ? `🎉 Foal ${newFoal.name} ranked up to Grade ${newStars}★!` : `Foal ${newFoal.name} born at Grade ${newStars}★!`);
 }
 
 function startLiveRace() {
@@ -242,18 +229,18 @@ function startLiveRace() {
     const ai1Img = document.getElementById('ai1-img');
     const ai2Img = document.getElementById('ai2-img');
 
-    // Apply the clean white template with dynamic hex tinting to Player AND AI Racers!
+    // Ensure racers use the base white template with proper background color container tinting
     if (playerImg) {
         playerImg.src = "3903_2.png";
-        playerImg.style.filter = getCssFilterForHex(active.hex);
+        playerImg.parentElement.style.backgroundColor = active.hex;
     }
     if (ai1Img) {
         ai1Img.src = "3903_2.png";
-        ai1Img.style.filter = getCssFilterForHex("#5e5854"); // Smoky gray AI racer
+        ai1Img.parentElement.style.backgroundColor = "#5e5854";
     }
     if (ai2Img) {
         ai2Img.src = "3903_2.png";
-        ai2Img.style.filter = getCssFilterForHex("#ffb703"); // Amber gold AI racer
+        ai2Img.parentElement.style.backgroundColor = "#ffb703";
     }
 
     if (raceInterval) clearInterval(raceInterval);
@@ -299,4 +286,4 @@ function startLiveRace() {
 }
 
 updateUI();
-            
+        
