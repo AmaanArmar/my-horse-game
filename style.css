@@ -260,20 +260,20 @@ select, input {
 }
 
 .race-track-container {
-    background: #1b4d21;
+    background: #205224;
     border: 1px solid #2e7a37;
     border-radius: 12px;
     padding: 12px 10px;
     margin-bottom: 12px;
     position: relative;
     overflow: hidden;
-    height: 195px;
+    height: 205px;
 }
 
 .racer-lane {
     position: relative;
-    height: 52px;
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.35);
+    height: 56px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.4);
     margin-bottom: 4px;
     display: flex;
     align-items: center;
