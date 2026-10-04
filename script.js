@@ -25,11 +25,10 @@ function rgbToHex(r, g, b) {
     }).join("");
 }
 
-// Fixed CSS filter for accurate brown, amber, and palomino tones without green distortion
+// Calibrated filter for natural brown, amber, and palomino tones
 function getCssFilterForHex(hex) {
     let rgb = hexToRgb(hex);
     let brightness = (rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114) / 255;
-    // Calibrated hue rotation and saturation to keep browns rich and natural
     let hueShift = Math.round((rgb.r - rgb.g) * 0.4);
     let saturation = rgb.r > rgb.b ? '400%' : '150%';
     return `brightness(${Math.max(0.15, brightness * 1.1)}) sepia(0.9) saturate(${saturation}) hue-rotate(${hueShift}deg)`;
@@ -50,7 +49,6 @@ function updateUI() {
     document.getElementById('horse-name-display').innerText = active.name;
     document.getElementById('horse-meta-display').innerHTML = `${active.gender} | ${active.breed} | <span class="hex-code-label">${active.coatName} (${active.hex})</span>`;
     
-    // 10-Star Grade Display Format
     document.getElementById('active-stars').innerHTML = `<span class="grade-badge">Grade ${active.stars}★</span>`;
     document.getElementById('power-display').innerText = active.power;
     document.getElementById('energy-display').innerText = active.energy;
@@ -67,7 +65,7 @@ function updateUI() {
         inventoryHtml += `
             <div class="stable-horse-item" onclick="selectActiveHorse(${index})" style="cursor:pointer;">
                 <div>
-                    <strong>${h.name}</strong> <span style="font-size:0.70rem; color:var(--text-muted);">(${h.grade || h.stars}★ - ${h.hex})</span>
+                    <strong>${h.name}</strong> <span style="font-size:0.70rem; color:var(--text-muted);">(${h.stars}★ - ${h.hex})</span>
                 </div>
                 <div style="font-size: 0.8rem; color: var(--accent-gold);">
                     ${index === gameData.activeHorseIndex ? '✓ Active' : 'Select'}
@@ -143,17 +141,27 @@ function trainHorseStat(statName) {
 function buyRandomHorse() {
     if (gameData.gold < 500) { alert("Need 🪙 500 Gold to buy a random horse!"); return; }
     gameData.gold -= 500;
-    let names = ["Thunder", "Blaze", "Storm", "Ghost", "Apollo", "Titan"];
-    let starterHexes = ["#8b4513", "#ad754c", "#d1af97", "#5e5854", "#000000", "#ffffff"];
-    let coatNames = ["Classic Brown", "Chestnut", "Palomino", "Smoky Bay", "Jet Black", "Pure White"];
-    let randIdx = Math.floor(Math.random() * starterHexes.length);
+    let names = ["Thunder", "Blaze", "Storm", "Ghost", "Apollo", "Titan", "Amber Flash", "Golden Sun"];
+    
+    // Expanded color palette including Amber, Golden Yellow-Orange, Chestnut, and Rich Browns
+    let starterCoats = [
+        { hex: "#8b4513", name: "Classic Brown" },
+        { hex: "#ad754c", name: "Chestnut" },
+        { hex: "#d1af97", name: "Light Palomino" },
+        { hex: "#ffb703", name: "Amber Gold" },
+        { hex: "#fb8500", name: "Sunset Orange" },
+        { hex: "#cc5500", name: "Burnt Amber" },
+        { hex: "#5e5854", name: "Smoky Bay" },
+        { hex: "#000000", name: "Jet Black" }
+    ];
+    let selectedCoat = starterCoats[Math.floor(Math.random() * starterCoats.length)];
     
     let newHorse = {
         name: names[Math.floor(Math.random() * names.length)],
         gender: Math.random() < 0.5 ? "Stallion" : "Mare",
         breed: "Thoroughbred",
-        hex: starterHexes[randIdx],
-        coatName: coatNames[randIdx],
+        hex: selectedCoat.hex,
+        coatName: selectedCoat.name,
         stars: 1,
         power: 100,
         energy: 100,
@@ -177,22 +185,22 @@ function breedHorses() {
 
     let rgbSire = hexToRgb(sire.hex);
     let rgbDam = hexToRgb(dam.hex);
-    let blendR = Math.round((rgbSire.r + rgbDam.r) / 2 + (Math.random() * 20 - 10));
-    let blendG = Math.round((rgbSire.g + rgbDam.g) / 2 + (Math.random() * 20 - 10));
-    let blendB = Math.round((rgbSire.b + rgbDam.b) / 2 + (Math.random() * 20 - 10));
+    let blendR = Math.round((rgbSire.r + rgbDam.r) / 2 + (Math.random() * 25 - 12));
+    let blendG = Math.round((rgbSire.g + rgbDam.g) / 2 + (Math.random() * 25 - 12));
+    let blendB = Math.round((rgbSire.b + rgbDam.b) / 2 + (Math.random() * 25 - 12));
     let inheritedHex = rgbToHex(blendR, blendG, blendB);
 
     let baseStars = Math.max(sire.stars, dam.stars);
     let upgraded = Math.random() < 0.40 && baseStars < 10;
     let newStars = upgraded ? baseStars + 1 : baseStars;
 
-    let foalNames = ["Nova", "Eclipse", "Comet", "Spirit", "Miracle", "Legacy", "Apollo"];
+    let foalNames = ["Nova", "Eclipse", "Comet", "Spirit", "Miracle", "Legacy", "Amber King", "Golden Heir"];
     let newFoal = {
         name: foalNames[Math.floor(Math.random() * foalNames.length)],
         gender: Math.random() < 0.5 ? "Stallion" : "Mare",
         breed: sire.breed,
         hex: inheritedHex,
-        coatName: "Hybrid Blend",
+        coatName: "Hybrid Amber Blend",
         stars: newStars,
         power: Math.round(((sire.power + dam.power) / 2) + (newStars * 15)),
         energy: 100,
@@ -234,12 +242,19 @@ function startLiveRace() {
     const ai1Img = document.getElementById('ai1-img');
     const ai2Img = document.getElementById('ai2-img');
 
+    // Apply the clean white template with dynamic hex tinting to Player AND AI Racers!
     if (playerImg) {
         playerImg.src = "3903_2.png";
         playerImg.style.filter = getCssFilterForHex(active.hex);
     }
-    if (ai1Img) ai1Img.src = "4018.png";
-    if (ai2Img) ai2Img.src = "3906_2.png";
+    if (ai1Img) {
+        ai1Img.src = "3903_2.png";
+        ai1Img.style.filter = getCssFilterForHex("#5e5854"); // Smoky gray AI racer
+    }
+    if (ai2Img) {
+        ai2Img.src = "3903_2.png";
+        ai2Img.style.filter = getCssFilterForHex("#ffb703"); // Amber gold AI racer
+    }
 
     if (raceInterval) clearInterval(raceInterval);
 
