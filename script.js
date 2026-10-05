@@ -253,7 +253,6 @@ function startLiveRace() {
         if (ai1Elem) ai1Elem.style.left = ai1Pos + 'px';
         if (ai2Elem) ai2Elem.style.left = ai2Pos + 'px';
 
-        // Faster frame switching index calculation for smooth galloping look
         let playerFIdx = Math.floor(frameStep / 4) % frameFiles.length;
         let ai1FIdx = Math.floor((frameStep + 1) / 4) % frameFiles.length;
         let ai2FIdx = Math.floor((frameStep + 2) / 4) % frameFiles.length;
