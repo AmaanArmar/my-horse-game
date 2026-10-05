@@ -275,8 +275,6 @@ select, input {
     height: 56px;
     border-bottom: 1px dashed rgba(255, 255, 255, 0.4);
     margin-bottom: 4px;
-    display: flex;
-    align-items: center;
 }
 
 .last-lane {
@@ -337,4 +335,4 @@ select, input {
 
 .select-label {
     font-size: 0.8rem;
-    }
+}
