@@ -253,11 +253,10 @@ function startLiveRace() {
         if (ai1Elem) ai1Elem.style.left = ai1Pos + 'px';
         if (ai2Elem) ai2Elem.style.left = ai2Pos + 'px';
 
-        // Animate ALL horses (Player + AIs) through the running frame sequence
-        let frameIntervalDivider = Math.max(2, Math.floor(6 / playerSpeedMultiplier));
-        let playerFIdx = Math.floor(frameStep / frameIntervalDivider) % frameFiles.length;
-        let ai1FIdx = Math.floor((frameStep + 1) / 3) % frameFiles.length;
-        let ai2FIdx = Math.floor((frameStep + 2) / 3) % frameFiles.length;
+        // Animate ALL horses (Player + AIs) through the running frame sequence using frameFiles
+        let playerFIdx = Math.floor(frameStep / 2) % frameFiles.length;
+        let ai1FIdx = Math.floor((frameStep + 1) / 2) % frameFiles.length;
+        let ai2FIdx = Math.floor((frameStep + 2) / 2) % frameFiles.length;
         
         if (playerImg) playerImg.src = frameFiles[playerFIdx];
         if (ai1Img) ai1Img.src = frameFiles[ai1FIdx];
@@ -288,3 +287,4 @@ function startLiveRace() {
 }
 
 window.onload = updateUI;
+            
