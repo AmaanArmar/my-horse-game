@@ -26,6 +26,13 @@ let gameData = {
 
 const frameFiles = ["3903_2.png", "3905_2.png", "3906_2.png", "3907_2.png", "3909_2.png"];
 
+// Preload the image frames into memory immediately so they animate instantly without stutter
+const loadedFrames = frameFiles.map(src => {
+    let img = new Image();
+    img.src = src;
+    return img;
+});
+
 function getStatCap(stars) {
     return stars * 100;
 }
@@ -62,25 +69,25 @@ function updateUI() {
 
         let activeImg = document.getElementById('active-horse-img');
         if (activeImg) {
-            activeImg.src = frameFiles[0];
+            activeImg.src = loadedFrames[0].src;
             activeImg.style.filter = active.coat.filter;
         }
 
         let playerImg = document.getElementById('player-racer-img');
         if (playerImg) {
-            playerImg.src = frameFiles[0];
+            playerImg.src = loadedFrames[0].src;
             playerImg.style.filter = active.coat.filter;
         }
 
         let ai1Img = document.getElementById('ai1-racer-img');
         if (ai1Img) {
-            ai1Img.src = frameFiles[0];
+            ai1Img.src = loadedFrames[0].src;
             ai1Img.style.filter = coatLibrary[3].filter;
         }
 
         let ai2Img = document.getElementById('ai2-racer-img');
         if (ai2Img) {
-            ai2Img.src = frameFiles[0];
+            ai2Img.src = loadedFrames[0].src;
             ai2Img.style.filter = coatLibrary[4].filter;
         }
 
@@ -90,7 +97,7 @@ function updateUI() {
                 <div class="stable-horse-item" onclick="selectActiveHorse(${index})">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <div style="width: 32px; height: 32px; background: #1e1e24; border-radius: 6px; overflow: hidden;">
-                            <img src="${frameFiles[0]}" style="width:100%; height:100%; object-fit:contain; filter: ${h.coat.filter};" alt="Mini">
+                            <img src="${loadedFrames[0].src}" style="width:100%; height:100%; object-fit:contain; filter: ${h.coat.filter};" alt="Mini">
                         </div>
                         <div>
                             <strong style="font-size: 0.85rem;">${h.name}</strong><br>
@@ -225,7 +232,14 @@ function breedHorses() {
 let raceInterval = null;
 function startLiveRace() {
     let active = gameData.horses[gameData.activeHorseIndex];
-    if (active.energy < 20) { alert("Horse is too tired! Feed or rest first."); return; }
+    if (!active) {
+        alert("No active horse selected!");
+        return;
+    }
+    if (active.energy < 20) { 
+        alert("Horse is too tired! Feed or rest first."); 
+        return; 
+    }
     active.energy -= 20;
 
     let playerElem = document.getElementById('player-racer');
@@ -234,8 +248,13 @@ function startLiveRace() {
     let ai1Img = document.getElementById('ai1-racer-img');
     let ai2Elem = document.getElementById('ai2-racer');
     let ai2Img = document.getElementById('ai2-racer-img');
-    
-    let trackWidth = document.getElementById('race-track').offsetWidth - 65;
+    let trackContainer = document.getElementById('race-track');
+
+    if (!playerElem || !trackContainer) return;
+
+    let trackWidth = trackContainer.offsetWidth - 65;
+    if (isNaN(trackWidth) || trackWidth < 100) trackWidth = 320;
+
     let playerPos = 0, ai1Pos = 0, ai2Pos = 0, currentLap = 1, frameStep = 0;
 
     let playerAvg = (active.stats.speed + active.stats.stamina + active.stats.agility + active.stats.accel + active.stats.spirit) / 5;
@@ -245,6 +264,8 @@ function startLiveRace() {
 
     raceInterval = setInterval(() => {
         frameStep++;
+        
+        // Advance positions horizontally
         playerPos += 1.8 * playerSpeedMultiplier;
         ai1Pos += 2.2;
         ai2Pos += 2.0;
@@ -253,13 +274,14 @@ function startLiveRace() {
         if (ai1Elem) ai1Elem.style.left = ai1Pos + 'px';
         if (ai2Elem) ai2Elem.style.left = ai2Pos + 'px';
 
-        let playerFIdx = Math.floor(frameStep / 4) % frameFiles.length;
-        let ai1FIdx = Math.floor((frameStep + 1) / 4) % frameFiles.length;
-        let ai2FIdx = Math.floor((frameStep + 2) / 4) % frameFiles.length;
+        // Cycle through preloaded frame cache instantly
+        let pIndex = Math.floor(frameStep / 3) % loadedFrames.length;
+        let ai1Index = Math.floor((frameStep + 1) / 3) % loadedFrames.length;
+        let ai2Index = Math.floor((frameStep + 2) / 3) % loadedFrames.length;
         
-        if (playerImg) playerImg.src = frameFiles[playerFIdx];
-        if (ai1Img) ai1Img.src = frameFiles[ai1FIdx];
-        if (ai2Img) ai2Img.src = frameFiles[ai2FIdx];
+        if (playerImg) playerImg.src = loadedFrames[pIndex].src;
+        if (ai1Img) ai1Img.src = loadedFrames[ai1Index].src;
+        if (ai2Img) ai2Img.src = loadedFrames[ai2Index].src;
 
         if (playerPos >= trackWidth || ai1Pos >= trackWidth || ai2Pos >= trackWidth) {
             if (currentLap < 3) {
@@ -275,14 +297,14 @@ function startLiveRace() {
                 playerElem.style.left = '0px';
                 if (ai1Elem) ai1Elem.style.left = '0px';
                 if (ai2Elem) ai2Elem.style.left = '0px';
-                if (playerImg) playerImg.src = frameFiles[0];
-                if (ai1Img) ai1Img.src = frameFiles[0];
-                if (ai2Img) ai2Img.src = frameFiles[0];
+                if (playerImg) playerImg.src = loadedFrames[0].src;
+                if (ai1Img) ai1Img.src = loadedFrames[0].src;
+                if (ai2Img) ai2Img.src = loadedFrames[0].src;
                 document.getElementById('lap-indicator').innerText = `Lap 1 / 3`;
                 updateUI();
             }
         }
-    }, 40);
+    }, 35);
 }
 
 window.onload = updateUI;
